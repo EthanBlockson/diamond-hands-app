@@ -5,3 +5,52 @@ p {
 body {
     background: whitesmoke;
 }
+
+div {
+    padding: 20px;
+    border: 1px solid gray;
+}
+
+a {
+    color: teal;
+    text-decoration: underline;
+}
+
+/* FLEX TEMPLATES */
+
+.flex {
+    display: flex;
+  }
+  
+  .flex.row {
+    flex-direction: row;
+  }
+  
+  .flex.column {
+    flex-direction: column;
+  }
+  
+  .flex.wrap {
+    flex-wrap: wrap;
+  }
+  
+  .flex.nowrap {
+    flex-wrap: nowrap;
+  }
+  
+  .flex.start {
+    justify-content: flex-start;
+  }
+  
+  .flex.space-between {
+    justify-content: space-between;
+  }
+  
+  .flex.center {
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .flex.end {
+    justify-content: flex-end;
+  }
