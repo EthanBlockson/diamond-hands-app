@@ -6,14 +6,30 @@ body {
     background: whitesmoke;
 }
 
-div {
-    padding: 20px;
-    border: 1px solid gray;
-}
-
 a {
     color: teal;
     text-decoration: underline;
+}
+
+input {
+    width: 100%;
+
+    &[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+button {
+    padding: 15px;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    &.mini {
+        padding: 0;
+    }
 }
 
 /* FLEX TEMPLATES */
@@ -53,4 +69,8 @@ a {
   
   .flex.end {
     justify-content: flex-end;
+  }
+
+  .flex.gapped {
+    gap: 10px;
   }

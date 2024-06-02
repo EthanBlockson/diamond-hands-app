@@ -1,0 +1,27 @@
+.hold {
+    .tabs {
+        margin-top: 10px;
+    }
+
+    .form {
+        gap: 20px;
+        padding: 20px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        border: 1px solid gray;
+        width: 500px;
+
+        input {
+            font-size: 20px;
+        }
+
+        .date-slider, .price-slider {
+            .left {
+                width: 80%;
+            }
+            .right {
+                width: 20%;
+            }
+        }
+    }
+}
