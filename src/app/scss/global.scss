@@ -1,76 +1,89 @@
 p {
-    color: black;
+  color: black;
 }
 
 body {
-    background: whitesmoke;
+  background: whitesmoke;
+  font-family: Arial;
 }
 
 a {
-    color: teal;
-    text-decoration: underline;
+  color: teal;
+  text-decoration: underline;
 }
 
 input {
-    width: 100%;
+  width: 100%;
 
-    &[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-    }
+  &[type='checkbox'] {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 button {
-    padding: 15px;
+  padding: 15px;
 
-    &:hover {
-        cursor: pointer;
-    }
+  &:hover {
+    cursor: pointer;
+  }
 
-    &.mini {
-        padding: 0;
-    }
+  &.mini {
+    padding: 0;
+  }
 }
 
 /* FLEX TEMPLATES */
 
 .flex {
-    display: flex;
-  }
-  
-  .flex.row {
-    flex-direction: row;
-  }
-  
-  .flex.column {
-    flex-direction: column;
-  }
-  
-  .flex.wrap {
-    flex-wrap: wrap;
-  }
-  
-  .flex.nowrap {
-    flex-wrap: nowrap;
-  }
-  
-  .flex.start {
-    justify-content: flex-start;
-  }
-  
-  .flex.space-between {
-    justify-content: space-between;
-  }
-  
-  .flex.center {
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .flex.end {
-    justify-content: flex-end;
-  }
+  display: flex;
+}
 
-  .flex.gapped {
-    gap: 10px;
-  }
+.flex.row {
+  flex-direction: row;
+}
+
+.flex.column {
+  flex-direction: column;
+}
+
+.flex.wrap {
+  flex-wrap: wrap;
+}
+
+.flex.nowrap {
+  flex-wrap: nowrap;
+}
+
+.flex.start {
+  justify-content: flex-start;
+}
+
+.flex.space-between {
+  justify-content: space-between;
+}
+
+.flex.center {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex.center-vertical {
+  justify-content: center;
+}
+
+.flex.center-baseline {
+  align-items: center;
+}
+
+.flex.end {
+  justify-content: flex-end;
+}
+
+.flex.baseline {
+  align-items: baseline;
+}
+
+.flex.gapped {
+  gap: 10px;
+}

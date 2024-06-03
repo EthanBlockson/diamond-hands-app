@@ -1,27 +1,50 @@
 .hold {
-    .tabs {
-        margin-top: 10px;
+  .form {
+    gap: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 1px solid gray;
+    width: 500px;
+
+    input {
+      font-size: 20px;
+
+      &.amount {
+        font-size: 35px;
+      }
     }
 
-    .form {
-        gap: 20px;
-        padding: 20px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        border: 1px solid gray;
-        width: 500px;
+    .pick-tokens,
+    .date-slider,
+    .price-slider {
+      gap: 20px;
 
-        input {
-            font-size: 20px;
-        }
-
-        .date-slider, .price-slider {
-            .left {
-                width: 80%;
-            }
-            .right {
-                width: 20%;
-            }
-        }
+      .left {
+        width: 80%;
+      }
+      .right {
+        width: 20%;
+      }
     }
+
+    .buttons {
+      button {
+        width: 100%;
+      }
+    }
+
+    &.discount {
+      margin-top: 0;
+      margin-bottom: 20px;
+
+      input {
+        width: 150px;
+      }
+    }
+  }
+
+  .result-info {
+    width: 500px;
+  }
 }
