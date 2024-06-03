@@ -1,0 +1,53 @@
+.any-modal-background {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.any-modal {
+  width: 400px;
+  padding: 33px;
+  background: white;
+  border: 1px solid black;
+}
+
+.any-modal-header {
+  margin-bottom: 20px;
+}
+
+.pick-token-modal {
+  gap: 20px;
+
+  .search-field {
+    width: 80%;
+  }
+
+  .default-tokens {
+    .token {
+      padding: 10px;
+      border: 1px solid gray;
+      width: fit-content;
+
+      &:hover {
+        cursor: pointer;
+        background: gray;
+      }
+    }
+  }
+
+  .search-results {
+    .token-found {
+      &:hover {
+        background: gray;
+        cursor: pointer;
+      }
+    }
+  }
+}
