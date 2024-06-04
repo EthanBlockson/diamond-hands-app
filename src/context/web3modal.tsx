@@ -6,14 +6,6 @@ import { createWeb3Modal, defaultConfig } from '@web3modal/ethers5/react';
 const projectId = '90dd8b20e402cedadae37101ab1e9387';
 
 // 2. Set chains
-const sepolia = {
-  chainId: 11155111,
-  name: 'Sepolia (Testnet)',
-  currency: 'ETH',
-  explorerUrl: 'https://sepolia.etherscan.io/',
-  rpcUrl: 'https://rpc.ankr.com/eth_sepolia',
-};
-
 const mainnet = {
   chainId: 1,
   name: 'Ethereum',
@@ -94,7 +86,7 @@ const ethersConfig = defaultConfig({
 // 5. Create a Web3Modal instance
 createWeb3Modal({
   ethersConfig,
-  chains: [sepolia, mainnet, base, blast, arbitrum, optimism, polygon, bsc],
+  chains: [mainnet, base, blast, arbitrum, optimism, polygon, bsc],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   enableOnramp: true, // Optional - false as default

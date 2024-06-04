@@ -1,10 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import {
+  useWeb3ModalProvider,
+  useWeb3ModalAccount,
+} from '@web3modal/ethers5/react';
+import { getEtherBalance } from '@/calls/getEtherBalance';
+import cutDecimals from '@/utils/cutDecimals';
 import PickTokenModal from '../components/PickTokenModal';
 
 export default function Hold() {
+  const { walletProvider } = useWeb3ModalProvider();
+  const { address, chainId } = useWeb3ModalAccount();
+
+  const [tokenAddress, setTokenAddress] = useState(undefined);
+  const [tokenName, setTokenName] = useState('ETH');
+  const [tokenSymbol, setTokenSymbol] = useState('ETH');
+  const [tokenBalance, setTokenBalance] = useState(undefined);
+
   const [isPickTokenModalVisible, setIsPickTokenModalVisible] = useState(false);
+
+  useEffect(() => {
+    // Default token is ether
+    setTokenAddress(null);
+    setTokenName(chainId === 56 ? 'BNB' : 'ETH');
+    setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
+    callGetEtherBalance();
+  }, [address, chainId]);
+
+  const callGetEtherBalance = async () => {
+    const etherBalance = await getEtherBalance(walletProvider, address);
+    setTokenBalance(etherBalance);
+  };
 
   const handleShowPickTokenModal = (boolean) => {
     setIsPickTokenModalVisible(boolean);
@@ -39,15 +66,14 @@ export default function Hold() {
             <div className="right">
               <div className="token-address">
                 <div>Token</div>
-                {/* <button>ETH ⇩</button> */}
                 <button
                   onClick={() =>
                     setIsPickTokenModalVisible(!isPickTokenModalVisible)
                   }
                 >
-                  ETH
+                  {tokenSymbol}
                 </button>
-                <div>Balance: 0</div>
+                <div>Balance: {cutDecimals(tokenBalance)}</div>
               </div>
             </div>
           </div>
@@ -64,11 +90,11 @@ export default function Hold() {
           <div className="price-slider flex space-between">
             <div className="left">
               <div className="flex row gapped">
-                <div>Hold until 10.2X in ETH</div>
+                <div>Hold until 10.2X in {tokenSymbol}</div>
                 <button className="mini">change to USDT</button>
               </div>
               <input type="range" id="slider" name="slider" min="0" max="100" />
-              <div>0.0000001 ETH/TOKEN</div>
+              <div>0.0000001 {tokenSymbol}/TOKEN</div>
             </div>
             <div className="right">
               <input type="text" autoComplete="off" placeholder="100" />
@@ -88,9 +114,9 @@ export default function Hold() {
             <div>Fee</div>
             <div className="flex row gapped">
               <div>
-                <s>0.000123 ETH</s>
+                <s>0.000123 {tokenSymbol}</s>
               </div>
-              <div>0.0001 ETH</div>
+              <div>0.0001 {tokenSymbol}</div>
             </div>
           </div>
           <div className="flex space-between">

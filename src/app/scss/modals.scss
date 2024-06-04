@@ -4,7 +4,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 9999;
+  z-index: 99;
   background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
@@ -39,6 +39,17 @@
         cursor: pointer;
         background: gray;
       }
+    }
+  }
+
+  .switch-chain {
+    gap: 4px;
+    background: $light-gray;
+    border-radius: 10px;
+    padding: 10px 13px 10px 7px;
+
+    &:hover {
+      cursor: pointer;
     }
   }
 
