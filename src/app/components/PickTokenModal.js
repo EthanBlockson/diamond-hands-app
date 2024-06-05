@@ -6,22 +6,43 @@ import {
   useWeb3ModalAccount,
 } from '@web3modal/ethers5/react';
 import { isValidEthereumAddress } from '@/utils/isValidEthereumAddress';
+import { shortenAddress } from '@/utils/shortenAddress';
+import cutDecimals from '@/utils/cutDecimals';
 import { hotTokens } from '@/data/hotTokens';
+import { getERC20 } from '@/calls/getERC20';
+import { getEtherBalance } from '@/calls/getEtherBalance';
 import useDetectOutsideClick from '../hooks/useDetectOutsideClick';
 
 export default function PickTokenModal({
   isPickTokenModalVisible,
   handleShowPickTokenModal,
+  setTokenAddress,
+  setTokenName,
+  setTokenSymbol,
+  setTokenDecimals,
+  setTokenBalance,
 }) {
   const modalRef = useRef(null);
   const { open } = useWeb3Modal();
+  const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
 
-  const [contractAddress, setContractAddress] = useState(undefined);
+  const [contractAddress, setContractAddress] = useState('');
   const [isValidContractAddress, setIsValidContractAddress] = useState(true);
+  const [searchResults, setSearchResults] = useState('');
   const [blockDetectOutsideClick, setBlockDetectOutsideClick] = useState(false);
 
+  useEffect(() => {
+    isValidEthereumAddress(contractAddress) && fetchTokenData();
+  }, [contractAddress]);
+
+  const fetchTokenData = async () => {
+    const data = await getERC20(walletProvider, contractAddress, address);
+    data ? setSearchResults(data) : setSearchResults(null);
+  };
+
   const handleContractAddress = async (e) => {
+    setSearchResults('');
     const address = e.target.value;
     setContractAddress(address);
     const isValid = isValidEthereumAddress(address);
@@ -30,11 +51,45 @@ export default function PickTokenModal({
       : setIsValidContractAddress(false);
   };
 
+  const pickEther = async () => {
+    setTokenAddress('ether');
+    setTokenName(chainId === 56 ? 'BNB' : 'ETH');
+    setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
+    const etherBalance = await getEtherBalance(walletProvider, address);
+    setTokenBalance(etherBalance);
+    handleClosePickTokenModal();
+  };
+
+  const pickTokenFromHot = async (tokenAddress, tokenName, tokenSymbol) => {
+    handleClosePickTokenModal();
+    setTokenAddress(tokenAddress);
+    setTokenName(tokenName);
+    setTokenSymbol(tokenSymbol);
+    const { decimals, balanceNumber } = await getERC20(
+      walletProvider,
+      tokenAddress,
+      address,
+    );
+    setTokenDecimals(decimals);
+    setTokenBalance(balanceNumber);
+  };
+
+  const pickTokenFromSearch = () => {
+    setTokenAddress(contractAddress);
+    setTokenName(searchResults.name);
+    setTokenSymbol(searchResults.symbol);
+    setTokenDecimals(searchResults.decimals);
+    setTokenBalance(searchResults.balanceNumber);
+    handleClosePickTokenModal();
+  };
+
   useDetectOutsideClick(modalRef, () => {
     !blockDetectOutsideClick && handleClosePickTokenModal();
   });
 
   const openModalSelectNetwork = () => {
+    setContractAddress('');
+    setSearchResults('');
     setBlockDetectOutsideClick(true);
     open({ view: 'Networks' });
   };
@@ -71,7 +126,7 @@ export default function PickTokenModal({
                     autoComplete="off"
                     value={contractAddress}
                     onChange={handleContractAddress}
-                    placeholder="Paste token address (0x...)"
+                    placeholder="Token address (0x...)"
                   />
                 </div>
                 <div
@@ -93,31 +148,58 @@ export default function PickTokenModal({
                 </div>
               </div>
               <div className="default-tokens flex row wrap gapped">
-                <div className="token">ETH</div>
-                {hotTokens[chainId].map((token, i) => (
-                  <div key={i} className="token">
-                    {token.symbol}
-                  </div>
-                ))}
-              </div>
-              <div className="horizontal-line"></div>
-              <div className="search-results flex column gapped">
-                <div>Search results</div>
-                {!isValidContractAddress && (
-                  <div className="input-assist">
-                    Token with input address doesnt exist
-                  </div>
-                )}
-                <div className="token-found flex space-between">
-                  <div className="token-name">
-                    <div>Dai</div>
-                    <div className="flex row gapped">
-                      <div>DAI</div>
-                      <div>0xDA10...0da1</div>
-                    </div>
-                  </div>
-                  <div className="token-balance">0</div>
+                <div className="token" onClick={pickEther}>
+                  {chainId === 56 ? 'BNB' : 'ETH'}
                 </div>
+                {hotTokens[chainId] &&
+                  hotTokens[chainId].map((token, i) => (
+                    <div
+                      key={i}
+                      className="token"
+                      onClick={() =>
+                        pickTokenFromHot(
+                          token.address,
+                          token.name,
+                          token.symbol,
+                        )
+                      }
+                    >
+                      {token.symbol}
+                    </div>
+                  ))}
+              </div>
+              <div className="search-results flex column gapped">
+                {contractAddress && (
+                  <>
+                    <div className="horizontal-line"></div>
+                    <div>Search results</div>
+                    {!isValidContractAddress && (
+                      <div className="no-token">
+                        Provided address is incorrect
+                      </div>
+                    )}
+                    {searchResults && (
+                      <div
+                        className="token-found flex space-between"
+                        onClick={pickTokenFromSearch}
+                      >
+                        <div className="token-name">
+                          <div>{searchResults.name}</div>
+                          <div className="flex row gapped">
+                            <div>{searchResults.symbol}</div>
+                            <div>{shortenAddress(contractAddress)}</div>
+                          </div>
+                        </div>
+                        <div className="token-balance">
+                          {cutDecimals(searchResults.balanceNumber)}
+                        </div>
+                      </div>
+                    )}
+                    {searchResults === null && (
+                      <div className="no-token">Token not found</div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           </div>

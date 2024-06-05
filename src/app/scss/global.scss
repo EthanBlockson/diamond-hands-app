@@ -25,6 +25,10 @@ button {
     cursor: pointer;
   }
 
+  &:disabled {
+    cursor: not-allowed;
+  }
+
   &.mini {
     padding: 0;
   }

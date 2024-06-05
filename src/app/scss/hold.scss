@@ -15,6 +15,14 @@
       }
     }
 
+    .token-balance {
+      margin-left: 3px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
     .pick-tokens,
     .date-slider,
     .price-slider {

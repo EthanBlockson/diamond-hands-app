@@ -1,7 +1,10 @@
 import { ethers } from 'ethers';
 
 export const getEtherBalance = async (walletProvider, address) => {
-  if (!walletProvider || !address) return 0;
+  if (!walletProvider || !address) {
+    console.error('Not enough data provided calling getEtherBalance()');
+    return;
+  }
 
   try {
     const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
