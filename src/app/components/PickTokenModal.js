@@ -21,6 +21,9 @@ export default function PickTokenModal({
   setTokenSymbol,
   setTokenDecimals,
   setTokenBalance,
+  setAmount,
+  setAmountUSDT,
+  callGetPriceTOKENinETH,
 }) {
   const modalRef = useRef(null);
   const { open } = useWeb3Modal();
@@ -52,7 +55,7 @@ export default function PickTokenModal({
   };
 
   const pickEther = async () => {
-    setTokenAddress('ether');
+    setTokenAddress(null);
     setTokenName(chainId === 56 ? 'BNB' : 'ETH');
     setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
     const etherBalance = await getEtherBalance(walletProvider, address);
@@ -72,6 +75,7 @@ export default function PickTokenModal({
     );
     setTokenDecimals(decimals);
     setTokenBalance(balanceNumber);
+    callGetPriceTOKENinETH(tokenAddress, decimals);
   };
 
   const pickTokenFromSearch = () => {
@@ -80,6 +84,7 @@ export default function PickTokenModal({
     setTokenSymbol(searchResults.symbol);
     setTokenDecimals(searchResults.decimals);
     setTokenBalance(searchResults.balanceNumber);
+    callGetPriceTOKENinETH(contractAddress, searchResults.decimals);
     handleClosePickTokenModal();
   };
 
@@ -95,6 +100,8 @@ export default function PickTokenModal({
   };
 
   const handleClosePickTokenModal = () => {
+    setAmount('');
+    setAmountUSDT(0);
     handleShowPickTokenModal(false);
   };
 
@@ -191,7 +198,7 @@ export default function PickTokenModal({
                           </div>
                         </div>
                         <div className="token-balance">
-                          {cutDecimals(searchResults.balanceNumber)}
+                          {cutDecimals(searchResults.balanceNumber, 4)}
                         </div>
                       </div>
                     )}

@@ -35,6 +35,6 @@ export const getERC20 = async (
     return { name, symbol, decimals, balanceNumber };
   } catch (err) {
     console.error('Error calling getERC20()', err);
-    return 0;
+    return null;
   }
 };

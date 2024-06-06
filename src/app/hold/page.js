@@ -6,38 +6,45 @@ import {
   useWeb3ModalAccount,
 } from '@web3modal/ethers5/react';
 import { getEtherBalance } from '@/calls/getEtherBalance';
+import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
+import { USDT } from '@/data/USDT';
 import cutDecimals from '@/utils/cutDecimals';
 import PickTokenModal from '../components/PickTokenModal';
 import { formatDate } from '@/utils/formatDate';
 import addDaysToDate from '@/utils/addDaysToDate';
+import { fees } from '../../../fees';
 
 export default function Hold() {
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
 
   const [isConnected, setIsConnected] = useState(false);
-  const [tokenAddress, setTokenAddress] = useState(undefined);
+  const [tokenAddress, setTokenAddress] = useState(null);
   const [tokenName, setTokenName] = useState('ETH');
   const [tokenSymbol, setTokenSymbol] = useState('ETH');
   const [tokenDecimals, setTokenDecimals] = useState(undefined);
   const [tokenBalance, setTokenBalance] = useState(undefined);
   const [amount, setAmount] = useState('');
+  const [amountUSDT, setAmountUSDT] = useState(0);
+  const [priceETHinUSD, setPriceETHinUSD] = useState(0);
+  const [priceTOKENinETH, setPriceTOKENinETH] = useState(0);
   const [freezeForDays, setFreezeForDays] = useState(0);
   const [limitDays, setLimitDays] = useState(1825);
   const [unfreezeDate, setUnfreezeDate] = useState(new Date());
   const [freezeForX, setFreezeForX] = useState(1);
   const [limitX, setLimitX] = useState(100);
-  const [promocode, setPromocode] = useState('');
+  const [refcode, setRefcode] = useState('');
 
   const [isPickTokenModalVisible, setIsPickTokenModalVisible] = useState(false);
 
   useEffect(() => {
-    if (address) {
+    if (address && chainId) {
       // Default token is ether
-      setTokenAddress('ether');
       setTokenName(chainId === 56 ? 'BNB' : 'ETH');
       setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
       callGetEtherBalance();
+      callGetPriceETHinUSD();
+      setRefcode(localStorage.getItem('refcode')?.toUpperCase());
       setIsConnected(true);
     } else {
       setIsConnected(false);
@@ -49,10 +56,46 @@ export default function Hold() {
     setTokenBalance(etherBalance);
   };
 
+  const callGetPriceETHinUSD = async () => {
+    const etherDollarPrice = await getTokenPriceV2(
+      chainId,
+      walletProvider,
+      USDT[chainId],
+      6, // USDT decimals
+      1, // 1 USDT
+      true,
+    );
+    // 1 / 0.000258740411587277 WETH = 3864.87 USDT/WETH
+    setPriceETHinUSD(1 / etherDollarPrice);
+  };
+
+  const callGetPriceTOKENinETH = async (token, decimals) => {
+    const tokenEtherPrice = await getTokenPriceV2(
+      chainId,
+      walletProvider,
+      token,
+      decimals,
+      1, // 1 TOKEN
+      true,
+    );
+    setPriceTOKENinETH(tokenEtherPrice);
+  };
+
   const handleAmount = (e) => {
     const inputAmount = parseFloat(e.target.value);
-    setAmount(inputAmount);
-    // setAmountUSDT(inputPC * price);
+    if (inputAmount >= 0) {
+      setAmount(inputAmount);
+      handleAmountUSDT(inputAmount);
+    } else {
+      setAmount('');
+      setAmountUSDT(0);
+    }
+  };
+
+  const handleAmountUSDT = (inputAmount) => {
+    tokenAddress === null && setAmountUSDT(inputAmount * priceETHinUSD);
+    tokenAddress &&
+      setAmountUSDT(inputAmount * priceTOKENinETH * priceETHinUSD);
   };
 
   const handleDays = (e) => {
@@ -83,6 +126,9 @@ export default function Hold() {
       setTokenSymbol={setTokenSymbol}
       setTokenDecimals={setTokenDecimals}
       setTokenBalance={setTokenBalance}
+      setAmount={setAmount}
+      setAmountUSDT={setAmountUSDT}
+      callGetPriceTOKENinETH={callGetPriceTOKENinETH}
     />,
   ];
 
@@ -122,14 +168,21 @@ export default function Hold() {
               </div>
             </div>
             <div className="flex space-between">
-              <div>$0.00</div>
+              {amountUSDT > 0 ? (
+                <div>${cutDecimals(amountUSDT, 2)}</div>
+              ) : (
+                <div></div>
+              )}
               <div className="flex end">
                 Balance:
                 <span
                   className="token-balance"
-                  onClick={() => setAmount(tokenBalance)}
+                  onClick={() => {
+                    setAmount(tokenBalance);
+                    handleAmountUSDT(tokenBalance);
+                  }}
                 >
-                  {cutDecimals(tokenBalance)}
+                  {cutDecimals(tokenBalance, 4)}
                 </span>
               </div>
             </div>
@@ -207,6 +260,12 @@ export default function Hold() {
           </div>
           {amount > 0 && amount <= tokenBalance && (
             <div className="result-info flex column">
+              {refcode && (
+                <div className="flex space-between">
+                  <div>Discount</div>
+                  <div>{refcode} -20%</div>
+                </div>
+              )}
               <div className="flex space-between">
                 <div>Fee</div>
                 <div className="flex row gapped">
@@ -215,10 +274,6 @@ export default function Hold() {
                   </div>
                   <div>0.0001 {chainId === 56 ? 'BNB' : 'ETH'}</div>
                 </div>
-              </div>
-              <div className="flex space-between">
-                <div>Discount</div>
-                <div>PASHATECHNIQUE -20%</div>
               </div>
             </div>
           )}
