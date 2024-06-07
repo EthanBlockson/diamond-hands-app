@@ -11,6 +11,8 @@ import cutDecimals from '@/utils/cutDecimals';
 import { hotTokens } from '@/data/hotTokens';
 import { getERC20 } from '@/calls/getERC20';
 import { getEtherBalance } from '@/calls/getEtherBalance';
+import { getV2PairAddress } from '@/calls/getV2PairAddress';
+import { getV2PairTokenBalance } from '@/calls/getV2PairTokenBalance';
 import useDetectOutsideClick from '../hooks/useDetectOutsideClick';
 
 export default function PickTokenModal({
@@ -23,12 +25,17 @@ export default function PickTokenModal({
   setTokenBalance,
   setAmount,
   setAmountUSDT,
+  setIsV2PairExist,
+  setIsAtLeast1TokenInV2Pair,
   callGetPriceTOKENinETH,
+  setFreezeForDays,
+  setFreezeForX,
 }) {
   const modalRef = useRef(null);
   const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
+  const zeroAddress = '0x0000000000000000000000000000000000000000';
 
   const [contractAddress, setContractAddress] = useState('');
   const [isValidContractAddress, setIsValidContractAddress] = useState(true);
@@ -60,6 +67,8 @@ export default function PickTokenModal({
     setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
     const etherBalance = await getEtherBalance(walletProvider, address);
     setTokenBalance(etherBalance);
+    setIsV2PairExist(true);
+    setIsAtLeast1TokenInV2Pair(true);
     handleClosePickTokenModal();
   };
 
@@ -75,17 +84,64 @@ export default function PickTokenModal({
     );
     setTokenDecimals(decimals);
     setTokenBalance(balanceNumber);
-    callGetPriceTOKENinETH(tokenAddress, decimals);
+    const pairAddress = await callGetV2PairAddress(tokenAddress);
+    if (pairAddress && pairAddress !== zeroAddress) {
+      callGetPriceTOKENinETH(tokenAddress, decimals);
+      setIsV2PairExist(true);
+      const pairTokenBalance = await callGetV2PairTokenBalance(
+        pairAddress,
+        tokenAddress,
+        decimals,
+      );
+      setIsAtLeast1TokenInV2Pair(pairTokenBalance > 1);
+    } else {
+      setIsV2PairExist(false);
+    }
   };
 
-  const pickTokenFromSearch = () => {
+  const pickTokenFromSearch = async () => {
     setTokenAddress(contractAddress);
     setTokenName(searchResults.name);
     setTokenSymbol(searchResults.symbol);
     setTokenDecimals(searchResults.decimals);
     setTokenBalance(searchResults.balanceNumber);
-    callGetPriceTOKENinETH(contractAddress, searchResults.decimals);
+    const pairAddress = await callGetV2PairAddress(contractAddress);
+    if (pairAddress && pairAddress !== zeroAddress) {
+      callGetPriceTOKENinETH(contractAddress, searchResults.decimals);
+      setIsV2PairExist(true);
+      const pairTokenBalance = await callGetV2PairTokenBalance(
+        pairAddress,
+        contractAddress,
+        searchResults.decimals,
+      );
+      setIsAtLeast1TokenInV2Pair(pairTokenBalance > 1);
+    } else {
+      setIsV2PairExist(false);
+    }
     handleClosePickTokenModal();
+  };
+
+  const callGetV2PairAddress = async (tokenAddress) => {
+    const pairAddress = await getV2PairAddress(
+      chainId,
+      walletProvider,
+      tokenAddress,
+    );
+    return pairAddress;
+  };
+
+  const callGetV2PairTokenBalance = async (
+    pairAddress,
+    tokenAddress,
+    decimals,
+  ) => {
+    const pairTokenBalance = await getV2PairTokenBalance(
+      walletProvider,
+      pairAddress,
+      tokenAddress,
+      decimals,
+    );
+    return pairTokenBalance;
   };
 
   useDetectOutsideClick(modalRef, () => {
@@ -102,6 +158,8 @@ export default function PickTokenModal({
   const handleClosePickTokenModal = () => {
     setAmount('');
     setAmountUSDT(0);
+    setFreezeForDays(0);
+    setFreezeForX(0);
     handleShowPickTokenModal(false);
   };
 

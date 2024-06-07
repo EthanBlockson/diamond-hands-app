@@ -15,6 +15,6 @@ export default function cutDecimals(number, pointsAfterDot) {
   } else {
     return parseFloat(numberString); // if there's no decimal point, return the original number as is
   }
-  // output 4120.5123 (string)
+  // output 4120.5123 (number)
   // no rounding
 }

@@ -28,10 +28,12 @@ export default function Hold() {
   const [amountUSDT, setAmountUSDT] = useState(0);
   const [priceETHinUSD, setPriceETHinUSD] = useState(0);
   const [priceTOKENinETH, setPriceTOKENinETH] = useState(0);
+  const [isV2PairExist, setIsV2PairExist] = useState(true);
+  const [isAtLeast1TokenInV2Pair, setIsAtLeast1TokenInV2Pair] = useState(true);
   const [freezeForDays, setFreezeForDays] = useState(0);
   const [limitDays, setLimitDays] = useState(1825);
   const [unfreezeDate, setUnfreezeDate] = useState(new Date());
-  const [freezeForX, setFreezeForX] = useState(1);
+  const [freezeForX, setFreezeForX] = useState(0);
   const [limitX, setLimitX] = useState(100);
   const [refcode, setRefcode] = useState('');
 
@@ -128,7 +130,11 @@ export default function Hold() {
       setTokenBalance={setTokenBalance}
       setAmount={setAmount}
       setAmountUSDT={setAmountUSDT}
+      setIsV2PairExist={setIsV2PairExist}
+      setIsAtLeast1TokenInV2Pair={setIsAtLeast1TokenInV2Pair}
       callGetPriceTOKENinETH={callGetPriceTOKENinETH}
+      setFreezeForDays={setFreezeForDays}
+      setFreezeForX={setFreezeForX}
     />,
   ];
 
@@ -137,6 +143,8 @@ export default function Hold() {
       {isPickTokenModalVisible && <>{modals[1]}</>}
       {isConnected ? (
         <div className="hold flex column center">
+          {isV2PairExist && <div>V2 pair exist</div>}
+          {isAtLeast1TokenInV2Pair && <div>At least 1 token is in pair</div>}
           <h1>New holding</h1>
           <div className="form flex column">
             <div className="pick-tokens flex space-between">
@@ -218,13 +226,16 @@ export default function Hold() {
                 )}
               </div>
             </div>
-            <div className="price-slider flex space-between">
+            <div
+              className={`price-slider flex space-between 
+                ${!isV2PairExist && 'unavailable'}`}
+            >
               <div className="left">
                 <div className="flex row gapped">
-                  <div>
-                    Hold until {freezeForX}X in {tokenSymbol}
-                  </div>
-                  <button className="mini">change to USDT</button>
+                  <div>Hold until {freezeForX}X in ETH</div>
+                  {isAtLeast1TokenInV2Pair && (
+                    <button className="mini">in USDT?</button>
+                  )}
                 </div>
                 <input
                   type="range"
@@ -236,7 +247,7 @@ export default function Hold() {
                   value={freezeForX}
                   onChange={handleX}
                 />
-                <div>0.0000001 {tokenSymbol}/TOKEN</div>
+                <div>0.0000001 ETH/{tokenSymbol}</div>
               </div>
               <div className="right">
                 <input
