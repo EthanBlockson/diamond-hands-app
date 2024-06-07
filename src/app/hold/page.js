@@ -121,6 +121,7 @@ export default function Hold() {
   const modals = [
     null,
     <PickTokenModal
+      key="default"
       isPickTokenModalVisible={isPickTokenModalVisible}
       handleShowPickTokenModal={handleShowPickTokenModal}
       setTokenAddress={setTokenAddress}
@@ -257,7 +258,7 @@ export default function Hold() {
                   value={freezeForX}
                   onChange={handleX}
                 />
-                <div>X's</div>
+                <div>X&apos;s</div>
                 {freezeForX === limitX && (
                   <button
                     className="mini"
