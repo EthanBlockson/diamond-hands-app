@@ -36,13 +36,6 @@
       }
     }
 
-    .price-slider {
-      &.unavailable {
-        opacity: 30%;
-        pointer-events: none;
-      }
-    }
-
     .buttons {
       button {
         width: 100%;

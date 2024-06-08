@@ -1,4 +1,4 @@
-export const fees = [
-  2, // deposit, %
-  2, // withdrawal, %
-];
+export const fees = {
+  deposit: 2, // %
+  withdrawal: 2, // %
+};

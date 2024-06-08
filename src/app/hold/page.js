@@ -9,6 +9,7 @@ import { getEtherBalance } from '@/calls/getEtherBalance';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { USDT } from '@/data/USDT';
 import cutDecimals from '@/utils/cutDecimals';
+import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
 import PickTokenModal from '../components/PickTokenModal';
 import { formatDate } from '@/utils/formatDate';
 import addDaysToDate from '@/utils/addDaysToDate';
@@ -27,15 +28,17 @@ export default function Hold() {
   const [amount, setAmount] = useState('');
   const [amountUSDT, setAmountUSDT] = useState(0);
   const [priceETHinUSD, setPriceETHinUSD] = useState(0);
-  const [priceTOKENinETH, setPriceTOKENinETH] = useState(0);
-  const [isV2PairExist, setIsV2PairExist] = useState(true);
-  const [isAtLeast1TokenInV2Pair, setIsAtLeast1TokenInV2Pair] = useState(true);
+  const [priceTOKENinETH, setPriceTOKENinETH] = useState(undefined);
+  const [isErrorGettingPriceTOKEN, setIsErrorGettingPriceTOKEN] =
+    useState(false);
   const [freezeForDays, setFreezeForDays] = useState(0);
   const [limitDays, setLimitDays] = useState(1825);
   const [unfreezeDate, setUnfreezeDate] = useState(new Date());
-  const [freezeForX, setFreezeForX] = useState(0);
+  const [freezeForX, setFreezeForX] = useState(1);
+  const [isInUSDT, setIsInUSDT] = useState(true);
   const [limitX, setLimitX] = useState(100);
   const [refcode, setRefcode] = useState('');
+  const [fee, setFee] = useState(undefined);
 
   const [isPickTokenModalVisible, setIsPickTokenModalVisible] = useState(false);
 
@@ -81,6 +84,21 @@ export default function Hold() {
       true,
     );
     setPriceTOKENinETH(tokenEtherPrice);
+    tokenEtherPrice && setIsErrorGettingPriceTOKEN(false);
+    !tokenEtherPrice && setIsErrorGettingPriceTOKEN(true);
+  };
+
+  const callGetDepositFeeForExactTOKENs = async () => {
+    const currentPrice = await getTokenPriceV2(
+      chainId,
+      walletProvider,
+      tokenAddress,
+      tokenDecimals,
+      amount,
+      true,
+    );
+    const finalFee = (currentPrice * fees.deposit) / 100;
+    return finalFee;
   };
 
   const handleAmount = (e) => {
@@ -88,6 +106,7 @@ export default function Hold() {
     if (inputAmount >= 0) {
       setAmount(inputAmount);
       handleAmountUSDT(inputAmount);
+      calcFee(inputAmount);
     } else {
       setAmount('');
       setAmountUSDT(0);
@@ -95,9 +114,15 @@ export default function Hold() {
   };
 
   const handleAmountUSDT = (inputAmount) => {
-    tokenAddress === null && setAmountUSDT(inputAmount * priceETHinUSD);
+    tokenName === 'ETH' && setAmountUSDT(inputAmount * priceETHinUSD);
     tokenAddress &&
       setAmountUSDT(inputAmount * priceTOKENinETH * priceETHinUSD);
+  };
+
+  const calcFee = (inputAmount) => {
+    tokenName === 'ETH' && setFee((inputAmount * fees.deposit) / 100);
+    tokenAddress &&
+      setFee((inputAmount * priceTOKENinETH * fees.deposit) / 100);
   };
 
   const handleDays = (e) => {
@@ -131,11 +156,11 @@ export default function Hold() {
       setTokenBalance={setTokenBalance}
       setAmount={setAmount}
       setAmountUSDT={setAmountUSDT}
-      setIsV2PairExist={setIsV2PairExist}
-      setIsAtLeast1TokenInV2Pair={setIsAtLeast1TokenInV2Pair}
       callGetPriceTOKENinETH={callGetPriceTOKENinETH}
+      setIsErrorGettingPriceTOKEN={setIsErrorGettingPriceTOKEN}
       setFreezeForDays={setFreezeForDays}
       setFreezeForX={setFreezeForX}
+      setIsInUSDT={setIsInUSDT}
     />,
   ];
 
@@ -144,8 +169,6 @@ export default function Hold() {
       {isPickTokenModalVisible && <>{modals[1]}</>}
       {isConnected ? (
         <div className="hold flex column center">
-          {isV2PairExist && <div>V2 pair exist</div>}
-          {isAtLeast1TokenInV2Pair && <div>At least 1 token is in pair</div>}
           <h1>New holding</h1>
           <div className="form flex column">
             <div className="pick-tokens flex space-between">
@@ -195,7 +218,13 @@ export default function Hold() {
                 </span>
               </div>
             </div>
-            <div className="date-slider flex space-between">
+            <div
+              className={`date-slider flex space-between 
+                ${
+                  (isErrorGettingPriceTOKEN || priceTOKENinETH == 0) &&
+                  'unavailable'
+                }`}
+            >
               <div className="left">
                 <div>Hold until {formatDate(unfreezeDate)}</div>
                 <input
@@ -229,14 +258,25 @@ export default function Hold() {
             </div>
             <div
               className={`price-slider flex space-between 
-                ${!isV2PairExist && 'unavailable'}`}
+                ${
+                  (isErrorGettingPriceTOKEN || priceTOKENinETH == 0) &&
+                  'unavailable'
+                }`}
             >
               <div className="left">
                 <div className="flex row gapped">
-                  <div>Hold until {freezeForX}X in ETH</div>
-                  {isAtLeast1TokenInV2Pair && (
-                    <button className="mini">in USDT?</button>
-                  )}
+                  <div>
+                    Hold until {freezeForX}X in {isInUSDT ? 'USDT' : 'ETH'}
+                  </div>
+                  {tokenName !== 'ETH' &&
+                    priceTOKENinETH * priceETHinUSD > 0.000001 && (
+                      <button
+                        className="mini"
+                        onClick={() => setIsInUSDT(!isInUSDT)}
+                      >
+                        in {isInUSDT ? 'ETH' : 'USDT'}?
+                      </button>
+                    )}
                 </div>
                 <input
                   type="range"
@@ -248,7 +288,28 @@ export default function Hold() {
                   value={freezeForX}
                   onChange={handleX}
                 />
-                <div>0.0000001 ETH/{tokenSymbol}</div>
+                <div className="flex row">
+                  {tokenName === 'ETH' ? (
+                    <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
+                  ) : (
+                    <>
+                      {priceTOKENinETH ? (
+                        <div>
+                          {isInUSDT
+                            ? cutLongZeroNumber(
+                                priceTOKENinETH * priceETHinUSD * freezeForX,
+                              )
+                            : cutLongZeroNumber(priceTOKENinETH * freezeForX)}
+                        </div>
+                      ) : (
+                        <div>...</div>
+                      )}
+                    </>
+                  )}
+                  &nbsp;
+                  {tokenName === 'ETH' ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
+                  {tokenName === 'ETH' ? 'ETH' : tokenSymbol}
+                </div>
               </div>
               <div className="right">
                 <input
@@ -270,35 +331,56 @@ export default function Hold() {
               </div>
             </div>
           </div>
-          {amount > 0 && amount <= tokenBalance && (
-            <div className="result-info flex column">
-              {refcode && (
-                <div className="flex space-between">
-                  <div>Discount</div>
-                  <div>{refcode} -20%</div>
-                </div>
-              )}
-              <div className="flex space-between">
-                <div>Fee</div>
-                <div className="flex row gapped">
-                  <div>
-                    <s>0.000123 {chainId === 56 ? 'BNB' : 'ETH'}</s>
+          {amount > 0 &&
+            amount <= tokenBalance &&
+            priceTOKENinETH !== 0 &&
+            !isErrorGettingPriceTOKEN && (
+              <div className="result-info flex column">
+                {refcode && (
+                  <div className="flex space-between">
+                    <div>Discount</div>
+                    <div>{refcode} -20%</div>
                   </div>
-                  <div>0.0001 {chainId === 56 ? 'BNB' : 'ETH'}</div>
+                )}
+                <div className="flex space-between">
+                  <div>Fee</div>
+                  <div className="flex row gapped">
+                    {refcode && (
+                      <div>
+                        <s>
+                          {fee * 0.8 >= 0.0001
+                            ? cutDecimals(fee * 0.8, 4)
+                            : '<0.0001'}
+                          &nbsp;
+                          {chainId === 56 ? 'BNB' : 'ETH'}
+                        </s>
+                      </div>
+                    )}
+                    <div>
+                      ≈{fee >= 0.0001 ? cutDecimals(fee, 4) : '<0.0001'}
+                      &nbsp;
+                      {chainId === 56 ? 'BNB' : 'ETH'}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
           <div className="form flex column">
             <div className="buttons flex space-between gapped">
-              {!amount && <button disabled>Enter an amount</button>}
-              {amount > tokenBalance && (
-                <button disabled>Insufficient {tokenSymbol} balance</button>
-              )}
-              {amount <= tokenBalance && amount > 0 && (
+              {isErrorGettingPriceTOKEN || priceTOKENinETH == 0 ? (
+                <button disabled>Insufficient liquidity (V2)</button>
+              ) : (
                 <>
-                  <button>Approve</button>
-                  <button disabled>Hold</button>
+                  {!amount && <button disabled>Enter an amount</button>}
+                  {amount > tokenBalance && (
+                    <button disabled>Insufficient {tokenSymbol} balance</button>
+                  )}
+                  {amount <= tokenBalance && amount > 0 && (
+                    <>
+                      {tokenName !== 'ETH' && <button>Approve</button>}
+                      <button disabled>Hold</button>
+                    </>
+                  )}
                 </>
               )}
             </div>

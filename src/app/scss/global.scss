@@ -39,6 +39,11 @@ button {
   background: gray;
 }
 
+.unavailable {
+  opacity: 30%;
+  pointer-events: none;
+}
+
 /* FLEX TEMPLATES */
 
 .flex {

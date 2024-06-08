@@ -1,0 +1,5 @@
+# Fees
+
+Fees showed as nearly equal, because calculated based on 1 token price, to not refretch it every time on input because of real price difference because of liquidity.
+
+But when user actually calls deposit, we calculate final fees, calling getTokenPriceV2() to provide enough ether to payable function as fee.

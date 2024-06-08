@@ -44,7 +44,6 @@ export const getTokenPriceV2 = async (
 
     const etherPriceString = ethers.utils.formatUnits(etherPriceBigNumber, 18); // decimals
     const etherPriceNumber = parseFloat(etherPriceString);
-
     return etherPriceNumber;
   } catch (err) {
     console.error('Error calling getTokenPriceV2()', err);
