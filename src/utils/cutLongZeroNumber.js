@@ -1,5 +1,6 @@
 export default function cutLongZeroNumber(number) {
-  let numStr = number.toFixed(20);
+  if (isNaN(number)) return '?';
+  let numStr = number.toFixed(18);
   let parts = numStr.split('.');
   let intPart = parts[0];
   let decPart = parts[1];

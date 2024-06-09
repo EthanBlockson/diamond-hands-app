@@ -23,7 +23,7 @@ export const getTokenPriceV2 = async (
 
   const contractAddress = contracts[chainId];
   const tokenAmountInWei = ethers.utils.parseUnits(
-    tokenAmount.toString(),
+    tokenAmount.toFixed(18),
     tokenDecimals,
   );
 

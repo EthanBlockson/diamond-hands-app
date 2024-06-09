@@ -23,6 +23,7 @@ export default function PickTokenModal({
   setTokenBalance,
   setAmount,
   setAmountUSDT,
+  callCheckSpendingApproval,
   callGetPriceTOKENinETH,
   setIsErrorGettingPriceTOKEN,
   setFreezeForDays,
@@ -33,7 +34,6 @@ export default function PickTokenModal({
   const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
-  const zeroAddress = '0x0000000000000000000000000000000000000000';
 
   const [contractAddress, setContractAddress] = useState('');
   const [isValidContractAddress, setIsValidContractAddress] = useState(true);
@@ -83,6 +83,7 @@ export default function PickTokenModal({
     setTokenDecimals(decimals);
     setTokenBalance(balanceNumber);
     callGetPriceTOKENinETH(tokenAddress, decimals);
+    callCheckSpendingApproval(tokenAddress, decimals, address);
     setIsInUSDT(false);
   };
 

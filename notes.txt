@@ -3,3 +3,11 @@
 Fees showed as nearly equal, because calculated based on 1 token price, to not refretch it every time on input because of real price difference because of liquidity.
 
 But when user actually calls deposit, we calculate final fees, calling getTokenPriceV2() to provide enough ether to payable function as fee.
+
+# Refcodes
+
+Calling new deposit, refcode string is required. To prevent default service refcode squatting, use some random string generation every time.
+
+# Contract calls
+
+I use .toFixed(18) to stringify decimal numbers, instead of .toString(), because .toString() is not enough to cover up 1e-10 etc JS numbers with 18 max possible EVM decimals.

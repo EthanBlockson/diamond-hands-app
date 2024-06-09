@@ -7,6 +7,8 @@ import {
 } from '@web3modal/ethers5/react';
 import { getEtherBalance } from '@/calls/getEtherBalance';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
+import { checkSpendingApproval } from '@/calls/checkSpendingApproval';
+import { setSpendingApproval } from '@/calls/setSpendingApproval';
 import { USDT } from '@/data/USDT';
 import cutDecimals from '@/utils/cutDecimals';
 import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
@@ -14,18 +16,23 @@ import PickTokenModal from '../components/PickTokenModal';
 import { formatDate } from '@/utils/formatDate';
 import addDaysToDate from '@/utils/addDaysToDate';
 import { fees } from '../../../fees';
+import { getServiceFee } from '@/calls/getServiceFee';
+import { newHoldingEther } from '@/calls/newHoldingEther';
+import { newHoldingToken } from '@/calls/newHoldingToken';
 
 export default function Hold() {
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
 
   const [isConnected, setIsConnected] = useState(false);
+  const [depositType, setDepositType] = useState('DateOrPrice');
   const [tokenAddress, setTokenAddress] = useState(null);
   const [tokenName, setTokenName] = useState('ETH');
   const [tokenSymbol, setTokenSymbol] = useState('ETH');
   const [tokenDecimals, setTokenDecimals] = useState(undefined);
   const [tokenBalance, setTokenBalance] = useState(undefined);
   const [amount, setAmount] = useState('');
+  const [amountApproved, setAmountApproved] = useState(0);
   const [amountUSDT, setAmountUSDT] = useState(0);
   const [priceETHinUSD, setPriceETHinUSD] = useState(0);
   const [priceTOKENinETH, setPriceTOKENinETH] = useState(undefined);
@@ -88,18 +95,78 @@ export default function Hold() {
     !tokenEtherPrice && setIsErrorGettingPriceTOKEN(true);
   };
 
-  const callGetDepositFeeForExactTOKENs = async () => {
-    const currentPrice = await getTokenPriceV2(
+  const callCheckSpendingApproval = async (token, decimals, from) => {
+    const amount = await checkSpendingApproval(
+      chainId,
+      walletProvider,
+      token,
+      decimals,
+      from,
+    );
+    setAmountApproved(amount);
+  };
+
+  const callSetSpendingApproval = async () => {
+    const isApproved = await setSpendingApproval(
       chainId,
       walletProvider,
       tokenAddress,
-      tokenDecimals,
-      amount,
-      true,
     );
-    const finalFee = (currentPrice * fees.deposit) / 100;
-    return finalFee;
+    if (isApproved) {
+      console.log('New approval amount been set');
+    } else {
+      console.log('Error trying to set new approval amount');
+    }
+    callCheckSpendingApproval(tokenAddress, tokenDecimals, address);
   };
+
+  const callNewHoldingEther = async () => {
+    const deposit = await newHoldingEther(
+      chainId,
+      walletProvider,
+      amount,
+      freezeForDays * 86400,
+      freezeForX,
+      refcode,
+    );
+    if (deposit) {
+      console.log('Deposit successfull');
+    } else {
+      console.log('Error trying to make new ether holding');
+    }
+  };
+
+  const callNewHoldingToken = async () => {
+    const deposit = await newHoldingToken(
+      chainId,
+      walletProvider,
+      tokenAddress,
+      amount,
+      tokenDecimals,
+      freezeForDays * 86400,
+      freezeForX,
+      isInUSDT,
+      refcode,
+    );
+    if (deposit) {
+      console.log('Deposit successfull');
+    } else {
+      console.log('Error trying to make new ether holding');
+    }
+  };
+
+  // const callGetServiceFee = async () => {
+  //   const exactFee = await getServiceFee(
+  //     1,
+  //     chainId,
+  //     walletProvider,
+  //     tokenAddress,
+  //     amount,
+  //     tokenDecimals,
+  //   );
+  //   console.log(exactFee);
+  //   return exactFee;
+  // };
 
   const handleAmount = (e) => {
     const inputAmount = parseFloat(e.target.value);
@@ -135,8 +202,24 @@ export default function Hold() {
   };
 
   const handleX = (e) => {
-    const inputX = parseFloat(e.target.value);
+    let inputX = parseFloat(e.target.value);
+
+    if (inputX < 10) {
+      inputX = parseFloat(inputX.toFixed(2));
+    } else if (inputX < 100) {
+      inputX = parseFloat(inputX.toFixed(1));
+    } else {
+      inputX = Math.round(inputX);
+    }
+
     setFreezeForX(inputX);
+  };
+
+  const handleDepositTypeTab = (typeString) => {
+    setFreezeForDays(0);
+    setUnfreezeDate(new Date());
+    setFreezeForX(1);
+    setDepositType(typeString);
   };
 
   const handleShowPickTokenModal = (boolean) => {
@@ -156,6 +239,7 @@ export default function Hold() {
       setTokenBalance={setTokenBalance}
       setAmount={setAmount}
       setAmountUSDT={setAmountUSDT}
+      callCheckSpendingApproval={callCheckSpendingApproval}
       callGetPriceTOKENinETH={callGetPriceTOKENinETH}
       setIsErrorGettingPriceTOKEN={setIsErrorGettingPriceTOKEN}
       setFreezeForDays={setFreezeForDays}
@@ -170,6 +254,26 @@ export default function Hold() {
       {isConnected ? (
         <div className="hold flex column center">
           <h1>New holding</h1>
+          <div className="holding-types flex row gapped">
+            <button
+              disabled={depositType === 'DateOrPrice'}
+              onClick={() => handleDepositTypeTab('DateOrPrice')}
+            >
+              Until date or price
+            </button>
+            <button
+              disabled={depositType === 'Date'}
+              onClick={() => handleDepositTypeTab('Date')}
+            >
+              Until date
+            </button>
+            <button
+              disabled={depositType === 'Price'}
+              onClick={() => handleDepositTypeTab('Price')}
+            >
+              Until price
+            </button>
+          </div>
           <div className="form flex column">
             <div className="pick-tokens flex space-between">
               <div className="left">
@@ -201,7 +305,12 @@ export default function Hold() {
             </div>
             <div className="flex space-between">
               {amountUSDT > 0 ? (
-                <div>${cutDecimals(amountUSDT, 2)}</div>
+                <div>
+                  $
+                  {amountUSDT < 0.0001
+                    ? cutLongZeroNumber(amountUSDT)
+                    : cutDecimals(amountUSDT, 2)}
+                </div>
               ) : (
                 <div></div>
               )}
@@ -218,118 +327,123 @@ export default function Hold() {
                 </span>
               </div>
             </div>
-            <div
-              className={`date-slider flex space-between 
+            {depositType !== 'Price' && (
+              <div
+                className={`date-slider flex space-between 
                 ${
                   (isErrorGettingPriceTOKEN || priceTOKENinETH == 0) &&
                   'unavailable'
                 }`}
-            >
-              <div className="left">
-                <div>Hold until {formatDate(unfreezeDate)}</div>
-                <input
-                  type="range"
-                  id="slider"
-                  name="slider"
-                  min="1"
-                  max={limitDays}
-                  value={freezeForDays}
-                  onChange={handleDays}
-                />
-              </div>
-              <div className="right">
-                <input
-                  type="number"
-                  autoComplete="off"
-                  placeholder="12"
-                  value={freezeForDays}
-                  onChange={handleDays}
-                />
-                <div>days</div>
-                {freezeForDays === limitDays && (
-                  <button
-                    className="mini"
-                    onClick={() => setLimitDays(limitDays * 2)}
-                  >
-                    more!
-                  </button>
-                )}
-              </div>
-            </div>
-            <div
-              className={`price-slider flex space-between 
-                ${
-                  (isErrorGettingPriceTOKEN || priceTOKENinETH == 0) &&
-                  'unavailable'
-                }`}
-            >
-              <div className="left">
-                <div className="flex row gapped">
-                  <div>
-                    Hold until {freezeForX}X in {isInUSDT ? 'USDT' : 'ETH'}
-                  </div>
-                  {tokenName !== 'ETH' &&
-                    priceTOKENinETH * priceETHinUSD > 0.000001 && (
-                      <button
-                        className="mini"
-                        onClick={() => setIsInUSDT(!isInUSDT)}
-                      >
-                        in {isInUSDT ? 'ETH' : 'USDT'}?
-                      </button>
-                    )}
+              >
+                <div className="left">
+                  <div>Hold until {formatDate(unfreezeDate)}</div>
+                  <input
+                    type="range"
+                    id="slider"
+                    name="slider"
+                    min="1"
+                    max={limitDays}
+                    value={freezeForDays}
+                    onChange={handleDays}
+                  />
                 </div>
-                <input
-                  type="range"
-                  id="slider"
-                  name="slider"
-                  min="1"
-                  max={limitX}
-                  step="0.1"
-                  value={freezeForX}
-                  onChange={handleX}
-                />
-                <div className="flex row">
-                  {tokenName === 'ETH' ? (
-                    <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
-                  ) : (
-                    <>
-                      {priceTOKENinETH ? (
-                        <div>
-                          {isInUSDT
-                            ? cutLongZeroNumber(
-                                priceTOKENinETH * priceETHinUSD * freezeForX,
-                              )
-                            : cutLongZeroNumber(priceTOKENinETH * freezeForX)}
-                        </div>
-                      ) : (
-                        <div>...</div>
-                      )}
-                    </>
+                <div className="right">
+                  <input
+                    type="number"
+                    autoComplete="off"
+                    placeholder="12"
+                    value={freezeForDays}
+                    onChange={handleDays}
+                  />
+                  <div>days</div>
+                  {freezeForDays === limitDays && (
+                    <button
+                      className="mini"
+                      onClick={() => setLimitDays(limitDays * 2)}
+                    >
+                      more!
+                    </button>
                   )}
-                  &nbsp;
-                  {tokenName === 'ETH' ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
-                  {tokenName === 'ETH' ? 'ETH' : tokenSymbol}
                 </div>
               </div>
-              <div className="right">
-                <input
-                  type="number"
-                  autoComplete="off"
-                  placeholder="100"
-                  value={freezeForX}
-                  onChange={handleX}
-                />
-                <div>X&apos;s</div>
-                {freezeForX === limitX && (
-                  <button
-                    className="mini"
-                    onClick={() => setLimitX(limitX * 4)}
-                  >
-                    more!
-                  </button>
-                )}
+            )}
+            {depositType !== 'Date' && (
+              <div
+                className={`price-slider flex space-between 
+                ${
+                  (isErrorGettingPriceTOKEN || priceTOKENinETH == 0) &&
+                  'unavailable'
+                }`}
+              >
+                <div className="left">
+                  <div className="flex row gapped">
+                    <div>
+                      Hold until {freezeForX ? freezeForX : '?'}X in{' '}
+                      {isInUSDT ? 'USDT' : 'ETH'}
+                    </div>
+                    {tokenName !== 'ETH' &&
+                      priceTOKENinETH * priceETHinUSD > 0.000001 && (
+                        <button
+                          className="mini"
+                          onClick={() => setIsInUSDT(!isInUSDT)}
+                        >
+                          in {isInUSDT ? 'ETH' : 'USDT'}?
+                        </button>
+                      )}
+                  </div>
+                  <input
+                    type="range"
+                    id="slider"
+                    name="slider"
+                    min="1"
+                    max={limitX}
+                    step="0.1"
+                    value={freezeForX}
+                    onChange={handleX}
+                  />
+                  <div className="flex row">
+                    {tokenName === 'ETH' ? (
+                      <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
+                    ) : (
+                      <>
+                        {priceTOKENinETH ? (
+                          <div>
+                            {isInUSDT
+                              ? cutLongZeroNumber(
+                                  priceTOKENinETH * priceETHinUSD * freezeForX,
+                                )
+                              : cutLongZeroNumber(priceTOKENinETH * freezeForX)}
+                          </div>
+                        ) : (
+                          <div>...</div>
+                        )}
+                      </>
+                    )}
+                    &nbsp;
+                    {tokenName === 'ETH' ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
+                    {tokenName === 'ETH' ? 'ETH' : tokenSymbol}
+                  </div>
+                </div>
+                <div className="right">
+                  <input
+                    type="number"
+                    autoComplete="off"
+                    placeholder="100"
+                    value={freezeForX}
+                    onChange={handleX}
+                  />
+                  <div>X&apos;s</div>
+                  {freezeForX === limitX && (
+                    <button
+                      className="mini"
+                      onClick={() => setLimitX(limitX * 4)}
+                    >
+                      more!
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
           {amount > 0 &&
             amount <= tokenBalance &&
@@ -377,8 +491,23 @@ export default function Hold() {
                   )}
                   {amount <= tokenBalance && amount > 0 && (
                     <>
-                      {tokenName !== 'ETH' && <button>Approve</button>}
-                      <button disabled>Hold</button>
+                      {tokenName !== 'ETH' && amount > amountApproved && (
+                        <button onClick={() => callSetSpendingApproval()}>
+                          Approve
+                        </button>
+                      )}
+                      <button
+                        disabled={
+                          tokenName !== 'ETH' && amount > amountApproved
+                        }
+                        onClick={() => {
+                          tokenName === 'ETH'
+                            ? callNewHoldingEther()
+                            : callNewHoldingToken();
+                        }}
+                      >
+                        Hold
+                      </button>
                     </>
                   )}
                 </>
