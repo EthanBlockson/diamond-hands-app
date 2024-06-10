@@ -1,0 +1,32 @@
+.earn {
+  .details {
+    margin-top: 20px;
+    opacity: 50%;
+  }
+
+  .form {
+    gap: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 1px solid gray;
+    width: 500px;
+
+    input {
+      font-size: 20px;
+
+      &.code {
+        font-size: 35px;
+      }
+
+      &.link {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .earned-ether {
+    font-size: 50px;
+    font-weight: bold;
+  }
+}

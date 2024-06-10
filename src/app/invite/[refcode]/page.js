@@ -8,7 +8,7 @@ export default function Invite({ params }) {
   const { refcode } = params;
 
   useEffect(() => {
-    localStorage.setItem('refcode', refcode);
+    localStorage.setItem('refcode', refcode.toUpperCase());
     router.push('/');
   }, [refcode, router]);
 

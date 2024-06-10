@@ -4,12 +4,13 @@ export default function Header() {
   return (
     <div className="header flex space-between">
       <div className="left flex row center-baseline gapped">
-        <h1>Diamond Hands</h1>
+        <Link href="/">
+          <h1>Diamond Hands</h1>
+        </Link>
         <div className="menu flex row gapped">
-          <Link href="/">Landing</Link>
           <Link href="/hold">Hold</Link>
-          <Link href="#">Release</Link>
-          <Link href="#">Earn</Link>
+          <Link href="#">My holdings</Link>
+          <Link href="/earn">Earn</Link>
         </div>
       </div>
       <div className="right">
