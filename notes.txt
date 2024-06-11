@@ -11,3 +11,7 @@ Calling new deposit, refcode string is required. To prevent default service refc
 # Contract calls
 
 I use .toFixed(18) to stringify decimal numbers, instead of .toString(), because .toString() is not enough to cover up 1e-10 etc JS numbers with 18 max possible EVM decimals.
+
+# Security
+
+Taxable tokens (on each transfer) will broke the actual deposit token amount entry. But even if theres tax on plain transfer, e.g. 5%, deposited 100 tokens will result in 95 on actual contract balance. After withdraw, user will get 100 tokens but actual freezer balance will be 90.25. Users, its on them. If they wish to withdraw deposit while contract dont have enough tokens, they can transfer some tokens to freezer and perform the withdraw. If somebody use this breach infinitely, he'll just end up with the same amount of tokens, just made other holders lose the clear opportunity to withdraw.

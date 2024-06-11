@@ -39,7 +39,8 @@ export const newHoldingToken = async (
     18,
   );
 
-  const freezeForXFormatted = freezeForX > 1 ? freezeForX * 100 : 0;
+  const freezeForXFormatted =
+    freezeForX > 1 ? (freezeForX * 100).toFixed(0) : 0;
 
   const refcodeChecked = refcode
     ? refcode
@@ -53,6 +54,16 @@ export const newHoldingToken = async (
     const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
     const signer = ethersProvider.getSigner();
     const contract = new Contract(contractAddress, ABI, signer);
+
+    console.log([
+      tokenAddress,
+      freezeAmountInWei,
+      freezeForSeconds,
+      freezeForXFormatted,
+      isPriceGrowthGoalInUSD,
+      refcodeChecked,
+      { value: payableAmountInWei },
+    ]); // TEMP
 
     const tx = await contract.newHoldingToken(
       tokenAddress,

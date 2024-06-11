@@ -69,7 +69,7 @@ export default function Hold() {
   };
 
   const callGetPriceETHinUSD = async () => {
-    const etherDollarPrice = await getTokenPriceV2(
+    const dollarToEtherPrice = await getTokenPriceV2(
       chainId,
       walletProvider,
       USDT[chainId],
@@ -78,7 +78,7 @@ export default function Hold() {
       true,
     );
     // 1 / 0.000258740411587277 WETH = 3864.87 USDT/WETH
-    setPriceETHinUSD(1 / etherDollarPrice);
+    setPriceETHinUSD(1 / dollarToEtherPrice);
   };
 
   const callGetPriceTOKENinETH = async (token, decimals) => {

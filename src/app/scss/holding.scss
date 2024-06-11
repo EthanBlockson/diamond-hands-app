@@ -1,0 +1,31 @@
+.holding {
+  .unmatched-network {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: orange;
+  }
+
+  .form {
+    .token-name {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .progress {
+      width: 75%;
+      border: 1px solid lightgray;
+      padding: 10px;
+    }
+
+    .progress-bar {
+      height: 20px;
+      background: lightgray;
+
+      .elapsed {
+        min-height: 100%;
+        background: blue;
+      }
+    }
+  }
+}

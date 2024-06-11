@@ -49,6 +49,19 @@ button {
   word-break: break-word;
 }
 
+.form {
+  gap: 20px;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid gray;
+  width: 500px;
+}
+
+.low-opacity {
+  opacity: 50%;
+}
+
 /* FLEX TEMPLATES */
 
 .flex {
