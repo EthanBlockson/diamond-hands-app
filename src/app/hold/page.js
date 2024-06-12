@@ -19,6 +19,7 @@ import { fees } from '../../../fees';
 import { getServiceFee } from '@/calls/getServiceFee';
 import { newHoldingEther } from '@/calls/newHoldingEther';
 import { newHoldingToken } from '@/calls/newHoldingToken';
+import { chainCurrency } from '@/utils/chainCurrency';
 
 export default function Hold() {
   const { walletProvider } = useWeb3ModalProvider();
@@ -52,8 +53,8 @@ export default function Hold() {
   useEffect(() => {
     if (address && chainId) {
       // Default token is ether
-      setTokenName(chainId === 56 ? 'BNB' : 'ETH');
-      setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
+      setTokenName(chainCurrency[chainId]);
+      setTokenSymbol(chainCurrency[chainId]);
       callGetEtherBalance();
       callGetPriceETHinUSD();
       setRefcode(localStorage.getItem('refcode')?.toUpperCase());
@@ -395,7 +396,7 @@ export default function Hold() {
                     type="range"
                     id="slider"
                     name="slider"
-                    min="1"
+                    min="1.01"
                     max={limitX}
                     step="0.1"
                     value={freezeForX}
@@ -466,14 +467,14 @@ export default function Hold() {
                             ? cutDecimals(fee * 0.8, 4)
                             : '<0.0001'}
                           &nbsp;
-                          {chainId === 56 ? 'BNB' : 'ETH'}
+                          {chainCurrency[chainId]}
                         </s>
                       </div>
                     )}
                     <div>
                       ≈{fee >= 0.0001 ? cutDecimals(fee, 4) : '<0.0001'}
                       &nbsp;
-                      {chainId === 56 ? 'BNB' : 'ETH'}
+                      {chainCurrency[chainId]}
                     </div>
                   </div>
                 </div>
@@ -485,31 +486,47 @@ export default function Hold() {
                 <button disabled>Insufficient liquidity (V2)</button>
               ) : (
                 <>
-                  {!amount && <button disabled>Enter an amount</button>}
-                  {amount > tokenBalance && (
-                    <button disabled>Insufficient {tokenSymbol} balance</button>
+                  {(!amount ||
+                    amount > tokenBalance ||
+                    (depositType === 'DateOrPrice' &&
+                      (freezeForX < 1.01 || freezeForDays < 1)) ||
+                    (depositType === 'Date' && freezeForDays < 1) ||
+                    (depositType === 'Price' && freezeForX < 1.01)) && (
+                    <button disabled>
+                      {!amount
+                        ? 'Enter an amount'
+                        : amount > tokenBalance
+                        ? `Insufficient ${tokenSymbol} balance`
+                        : 'Set holding goal'}
+                    </button>
                   )}
-                  {amount <= tokenBalance && amount > 0 && (
-                    <>
-                      {tokenName !== 'ETH' && amount > amountApproved && (
-                        <button onClick={() => callSetSpendingApproval()}>
-                          Approve
+                  {amount <= tokenBalance &&
+                    amount > 0 &&
+                    ((depositType === 'DateOrPrice' &&
+                      freezeForX >= 1.01 &&
+                      freezeForDays >= 1) ||
+                      (depositType === 'Date' && freezeForDays >= 1) ||
+                      (depositType === 'Price' && freezeForX >= 1.01)) && (
+                      <>
+                        {tokenName !== 'ETH' && amount > amountApproved && (
+                          <button onClick={() => callSetSpendingApproval()}>
+                            Approve
+                          </button>
+                        )}
+                        <button
+                          disabled={
+                            tokenName !== 'ETH' && amount > amountApproved
+                          }
+                          onClick={() => {
+                            tokenName === 'ETH'
+                              ? callNewHoldingEther()
+                              : callNewHoldingToken();
+                          }}
+                        >
+                          Hold
                         </button>
-                      )}
-                      <button
-                        disabled={
-                          tokenName !== 'ETH' && amount > amountApproved
-                        }
-                        onClick={() => {
-                          tokenName === 'ETH'
-                            ? callNewHoldingEther()
-                            : callNewHoldingToken();
-                        }}
-                      >
-                        Hold
-                      </button>
-                    </>
-                  )}
+                      </>
+                    )}
                 </>
               )}
             </div>

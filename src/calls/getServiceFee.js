@@ -9,14 +9,7 @@ export const getServiceFee = async (
   tokenAmount,
   tokenDecimals,
 ) => {
-  if (
-    !path ||
-    !chainId ||
-    !walletProvider ||
-    !tokenAddress ||
-    !tokenAmount ||
-    !tokenDecimals
-  ) {
+  if (!path || !chainId || !walletProvider || !tokenAmount || !tokenDecimals) {
     console.error('Not enough data provided calling getServiceFee()');
     return;
   }

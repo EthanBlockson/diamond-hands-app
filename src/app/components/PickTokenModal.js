@@ -12,6 +12,7 @@ import { hotTokens } from '@/data/hotTokens';
 import { getERC20 } from '@/calls/getERC20';
 import { getEtherBalance } from '@/calls/getEtherBalance';
 import useDetectOutsideClick from '../hooks/useDetectOutsideClick';
+import { chainCurrency } from '@/utils/chainCurrency';
 
 export default function PickTokenModal({
   isPickTokenModalVisible,
@@ -61,8 +62,8 @@ export default function PickTokenModal({
 
   const pickEther = async () => {
     setTokenAddress(null);
-    setTokenName(chainId === 56 ? 'BNB' : 'ETH');
-    setTokenSymbol(chainId === 56 ? 'BNB' : 'ETH');
+    setTokenName(chainCurrency[chainId]);
+    setTokenSymbol(chainCurrency[chainId]);
     const etherBalance = await getEtherBalance(walletProvider, address);
     setTokenBalance(etherBalance);
     setIsErrorGettingPriceTOKEN(false);
@@ -168,7 +169,7 @@ export default function PickTokenModal({
               </div>
               <div className="default-tokens flex row wrap gapped">
                 <div className="token" onClick={pickEther}>
-                  {chainId === 56 ? 'BNB' : 'ETH'}
+                  {chainCurrency[chainId]}
                 </div>
                 {hotTokens[chainId] &&
                   hotTokens[chainId].map((token, i) => (

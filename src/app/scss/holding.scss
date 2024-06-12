@@ -7,12 +7,22 @@
   }
 
   .form {
+    &.wide {
+      padding: 40px;
+    }
+
     .token-name {
       font-size: 26px;
       font-weight: bold;
     }
 
     .progress {
+      width: 75%;
+      border: 1px solid lightgray;
+      padding: 10px;
+    }
+
+    .finalized {
       width: 75%;
       border: 1px solid lightgray;
       padding: 10px;
@@ -27,5 +37,15 @@
         background: blue;
       }
     }
+
+    .buttons {
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .result-info {
+    width: 500px;
   }
 }
