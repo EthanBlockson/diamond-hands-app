@@ -1,14 +1,75 @@
 .holding {
-  .unmatched-network {
+  .unmatched,
+  .empty {
+    width: 40%;
     margin-top: 20px;
     margin-bottom: 20px;
     padding: 20px;
-    background: orange;
+
+    &.network {
+      background: orange;
+    }
+
+    &.address {
+      border: 1px solid black;
+      background: white;
+
+      p {
+        word-break: break-all;
+      }
+    }
+  }
+
+  .progress-bar {
+    height: 20px;
+    background: lightgray;
+
+    .elapsed {
+      min-height: 100%;
+      background: blue;
+    }
+  }
+
+  .preview-cards {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 60%;
+    gap: 25px;
+
+    .preview-card {
+      flex: 0 1 calc(33.3% - 20px);
+      max-width: calc(33.3% - 20px);
+      padding: 10px;
+      border: 1px solid black;
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .token-header {
+        margin-bottom: 10px;
+      }
+
+      .token-amount,
+      .token-name {
+        font-weight: bold;
+      }
+
+      .progress-mini {
+        gap: 5px;
+      }
+    }
   }
 
   .form {
     &.wide {
       padding: 40px;
+    }
+
+    .token-amount {
+      font-size: 26px;
+      font-weight: bold;
     }
 
     .token-name {
@@ -26,16 +87,6 @@
       width: 75%;
       border: 1px solid lightgray;
       padding: 10px;
-    }
-
-    .progress-bar {
-      height: 20px;
-      background: lightgray;
-
-      .elapsed {
-        min-height: 100%;
-        background: blue;
-      }
     }
 
     .buttons {

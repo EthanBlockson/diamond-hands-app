@@ -21,8 +21,11 @@ import { USDT } from '@/data/USDT';
 import { chainCurrency } from '@/utils/chainCurrency';
 import { getServiceFee } from '@/calls/getServiceFee';
 import { getEtherBalance } from '@/calls/getEtherBalance';
+import { withdrawHoldingToken } from '@/calls/withdrawHoldingToken';
+import { withdrawHoldingEther } from '@/calls/withdrawHoldingEther';
+import toast from 'react-hot-toast';
 
-export default function Holdings({ params }) {
+export default function HoldingsById({ params }) {
   const { chainName, id } = params;
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
@@ -114,8 +117,6 @@ export default function Holdings({ params }) {
         fetchedHoldingInfo.token,
       );
 
-      console.log(fetchedTokenData, tokenEtherPrice); // TEMP
-
       if (fetchedHoldingInfo.holdAtPriceInWETH) {
         setPriceProgress(
           percentDifference(
@@ -173,8 +174,6 @@ export default function Holdings({ params }) {
         }
       }
     }
-
-    console.log(fetchedHoldingInfo); // TEMP
   };
 
   const fetchTokenData = async (contractAddress) => {
@@ -242,9 +241,41 @@ export default function Holdings({ params }) {
   const handleTokenAbleToClaim = async (token, amount, decimals, path) => {
     await callGetEtherBalance();
     const fee = await callGetServiceFee(token, amount, decimals, path);
-    console.log('withdrawal fee, ether', fee); // TEMP
     setWithdrawalFee(fee);
     setIsAbleToClaim(true);
+  };
+
+  const callWithdrawHoldingEther = async () => {
+    const tx = await withdrawHoldingEther(
+      chainId,
+      walletProvider,
+      id,
+      withdrawalFee,
+    );
+    if (tx) {
+      multiCallGetHoldingInfo();
+      toast.success(`${chainCurrency[chainId]} withdrawn successfully!`);
+    } else {
+      toast.error(
+        `Error trying to withdrawn ${chainCurrency[chainId]} from holding`,
+      );
+    }
+  };
+
+  const callWithdrawHoldingToken = async () => {
+    const tx = await withdrawHoldingToken(
+      chainId,
+      walletProvider,
+      id,
+      withdrawalFee,
+      holdingTokenData.decimals,
+    );
+    if (tx) {
+      multiCallGetHoldingInfo();
+      toast.success('Tokens withdrawn successfully!');
+    } else {
+      toast.error('Error trying to withdraw tokens from holding');
+    }
   };
 
   const openNetworkSwitch = () => {
@@ -274,6 +305,9 @@ export default function Holdings({ params }) {
                           />
                         </div>
                         <div className="flex column center">
+                          <div className="token-amount">
+                            {cutLongZeroNumber(holdingInfo.amount)}
+                          </div>
                           <div className="token-name">
                             {holdingInfo.isPureEther
                               ? chainCurrency[chainId]
@@ -635,24 +669,34 @@ export default function Holdings({ params }) {
                         )}
                       </div>
 
-                      {withdrawalFee && isAbleToClaim && (
-                        <div className="result-info flex column">
-                          <div className="flex space-between">
-                            <div>Fee</div>
-                            <div className="fee-amount">
-                              {cutDecimals(withdrawalFee, 4)}{' '}
-                              {chainCurrency[chainId]}
+                      {holdingInfo.isActive &&
+                        withdrawalFee !== undefined &&
+                        isAbleToClaim && (
+                          <div className="result-info flex column">
+                            <div className="flex space-between">
+                              <div>Fee</div>
+                              <div className="fee-amount">
+                                {cutDecimals(withdrawalFee, 4)}{' '}
+                                {chainCurrency[chainId]}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
 
-                      {holdingInfo.user === address &&
-                        withdrawalFee &&
+                      {holdingInfo.isActive &&
+                        holdingInfo.user === address &&
+                        withdrawalFee !== undefined &&
                         etherBalance && (
                           <div className="form flex column">
                             <div className="buttons flex">
-                              <button disabled={!isAbleToClaim}>
+                              <button
+                                disabled={!isAbleToClaim}
+                                onClick={() => {
+                                  holdingInfo.isPureEther
+                                    ? callWithdrawHoldingEther()
+                                    : callWithdrawHoldingToken();
+                                }}
+                              >
                                 {isAbleToClaim
                                   ? etherBalance >= withdrawalFee
                                     ? 'Withdraw'
@@ -671,7 +715,7 @@ export default function Holdings({ params }) {
                   )}
                 </>
               ) : (
-                <div className="unmatched-network flex column center gapped">
+                <div className="unmatched network flex column center gapped">
                   <div>Your wallet is connected to another network</div>
                   <div>
                     Please, switch network to {capitalizeFirstLetter(chainName)}

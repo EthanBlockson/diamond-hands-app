@@ -9,7 +9,7 @@ export default function Header() {
         </Link>
         <div className="menu flex row gapped">
           <Link href="/hold">Hold</Link>
-          <Link href="#">My holdings</Link>
+          <Link href={`/holdings/`}>My holdings</Link>
           <Link href="/earn">Earn</Link>
         </div>
       </div>
