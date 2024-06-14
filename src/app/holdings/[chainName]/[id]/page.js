@@ -25,7 +25,7 @@ import { getEtherBalance } from '@/calls/getEtherBalance';
 import { withdrawHoldingToken } from '@/calls/withdrawHoldingToken';
 import { withdrawHoldingEther } from '@/calls/withdrawHoldingEther';
 import toast from 'react-hot-toast';
-import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowercase';
+import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
 
 export default function HoldingsById({ params }) {
   const { chainName, id } = params;

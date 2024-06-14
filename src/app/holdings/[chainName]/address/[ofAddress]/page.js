@@ -17,7 +17,7 @@ import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { USDT } from '@/data/USDT';
 import HoldingPreviewCard from '@/app/components/HoldingPreviewCard';
 import { getHoldingInfo } from '@/calls/getHoldingInfo';
-import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowercase';
+import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
 
 export default function HoldingsByAddress({ params }) {
   const { chainName, ofAddress } = params;
