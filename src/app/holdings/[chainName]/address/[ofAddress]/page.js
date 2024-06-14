@@ -186,7 +186,7 @@ export default function HoldingsByAddress({ params }) {
                 </>
               ) : (
                 <div className="unmatched address flex column center gapped">
-                  <div>Address {ofAddress} doesn't exist</div>
+                  <div>Address {ofAddress} doesnt exist</div>
                 </div>
               )}
             </div>
