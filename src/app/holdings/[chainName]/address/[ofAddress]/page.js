@@ -55,7 +55,9 @@ export default function HoldingsByAddress({ params }) {
 
   const callGetHoldingsData = async () => {
     const fetchedHoldingIds = await callGetHoldingIds();
-    fetchedHoldingIds.length === 0 && setIsNoHoldings(true);
+    if (fetchedHoldingIds && fetchedHoldingIds.length === 0) {
+      setIsNoHoldings(true);
+    }
     const fetchedHoldingIdsReversed = [...fetchedHoldingIds].reverse();
     setHoldingsIds(fetchedHoldingIdsReversed);
     console.log(fetchedHoldingIds);

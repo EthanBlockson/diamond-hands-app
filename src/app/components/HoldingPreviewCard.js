@@ -1,7 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import {
-  useWeb3Modal,
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers5/react';
