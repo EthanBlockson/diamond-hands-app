@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import {
@@ -24,6 +25,7 @@ import { getEtherBalance } from '@/calls/getEtherBalance';
 import { withdrawHoldingToken } from '@/calls/withdrawHoldingToken';
 import { withdrawHoldingEther } from '@/calls/withdrawHoldingEther';
 import toast from 'react-hot-toast';
+import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowercase';
 
 export default function HoldingsById({ params }) {
   const { chainName, id } = params;
@@ -125,7 +127,7 @@ export default function HoldingsById({ params }) {
             tokenEtherPrice,
           ),
         );
-        if (tokenEtherPrice > fetchedHoldingInfo.holdAtPriceInWETH) {
+        if (tokenEtherPrice > fetchedHoldingInfo.holdUntilPriceInWETH) {
           await handleTokenAbleToClaim(
             fetchedHoldingInfo.token,
             fetchedHoldingInfo.amount,
@@ -145,7 +147,7 @@ export default function HoldingsById({ params }) {
         );
         if (
           tokenEtherPrice * etherDollarPrice >
-          fetchedHoldingInfo.holdAtPriceInUSD
+          fetchedHoldingInfo.holdUntilPriceInUSD
         ) {
           await handleTokenAbleToClaim(
             fetchedHoldingInfo.token,
@@ -291,6 +293,12 @@ export default function HoldingsById({ params }) {
           {isConnected && (
             <div className="holding flex column center">
               <h1>Holdings explorer</h1>
+              <Link
+                href={`/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`}
+                className="flex start"
+              >
+                ← Back to my holdings
+              </Link>
               {isNetworkMatch ? (
                 <>
                   {holdingInfo.amount > 0 ? (
