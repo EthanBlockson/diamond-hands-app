@@ -9,6 +9,7 @@ import { getEtherBalance } from '@/calls/getEtherBalance';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { checkSpendingApproval } from '@/calls/checkSpendingApproval';
 import { setSpendingApproval } from '@/calls/setSpendingApproval';
+import { getRefAddressByRefCode } from '@/calls/getRefAddressByRefCode';
 import { USDT } from '@/data/USDT';
 import cutDecimals from '@/utils/cutDecimals';
 import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
@@ -16,10 +17,8 @@ import PickTokenModal from '../components/PickTokenModal';
 import { formatDate } from '@/utils/formatDate';
 import addDaysToDate from '@/utils/addDaysToDate';
 import { fees } from '../../../fees';
-import { getServiceFee } from '@/calls/getServiceFee';
-import { newHoldingEther } from '@/calls/newHoldingEther';
-import { newHoldingToken } from '@/calls/newHoldingToken';
 import { chainCurrency } from '@/utils/chainCurrency';
+import ConfirmDepositModal from '../components/ConfirmDepositModal';
 
 export default function Hold() {
   const { walletProvider } = useWeb3ModalProvider();
@@ -31,6 +30,7 @@ export default function Hold() {
   const [tokenName, setTokenName] = useState('ETH');
   const [tokenSymbol, setTokenSymbol] = useState('ETH');
   const [tokenDecimals, setTokenDecimals] = useState(undefined);
+  const [etherBalance, setEtherBalance] = useState(undefined);
   const [tokenBalance, setTokenBalance] = useState(undefined);
   const [amount, setAmount] = useState('');
   const [amountApproved, setAmountApproved] = useState(0);
@@ -46,18 +46,24 @@ export default function Hold() {
   const [isInUSDT, setIsInUSDT] = useState(true);
   const [limitX, setLimitX] = useState(100);
   const [refcode, setRefcode] = useState('');
+  const [isValidRefCode, setIsValidRefCode] = useState(false);
   const [fee, setFee] = useState(undefined);
 
+  const zeroAddress = '0x0000000000000000000000000000000000000000';
+
   const [isPickTokenModalVisible, setIsPickTokenModalVisible] = useState(false);
+  const [isConfirmDepositModalVisible, setIsConfirmDepositModalVisible] =
+    useState(false);
 
   useEffect(() => {
     if (address && chainId) {
-      // Default token is ether
       setTokenName(chainCurrency[chainId]);
-      setTokenSymbol(chainCurrency[chainId]);
+      setTokenSymbol(chainCurrency[chainId]); // default token is ether
+      const refcode = localStorage.getItem('refcode')?.toUpperCase();
+      setRefcode(refcode);
+      callGetRefAddressByRefCode(refcode);
       callGetEtherBalance();
       callGetPriceETHinUSD();
-      setRefcode(localStorage.getItem('refcode')?.toUpperCase());
       setIsConnected(true);
     } else {
       setIsConnected(false);
@@ -66,7 +72,8 @@ export default function Hold() {
 
   const callGetEtherBalance = async () => {
     const etherBalance = await getEtherBalance(walletProvider, address);
-    setTokenBalance(etherBalance);
+    setEtherBalance(etherBalance);
+    setTokenBalance(etherBalance); // default token is ether
   };
 
   const callGetPriceETHinUSD = async () => {
@@ -113,60 +120,58 @@ export default function Hold() {
       walletProvider,
       tokenAddress,
     );
-    if (isApproved) {
-      console.log('New approval amount been set');
-    } else {
-      console.log('Error trying to set new approval amount');
-    }
     callCheckSpendingApproval(tokenAddress, tokenDecimals, address);
   };
 
-  const callNewHoldingEther = async () => {
-    const deposit = await newHoldingEther(
+  const callGetRefAddressByRefCode = async (refcode) => {
+    const referrerAddress = await getRefAddressByRefCode(
       chainId,
       walletProvider,
-      amount,
-      freezeForDays * 86400,
-      freezeForX,
       refcode,
     );
-    if (deposit) {
-      console.log('Deposit successfull');
-    } else {
-      console.log('Error trying to make new ether holding');
-    }
+    const isExist = referrerAddress !== zeroAddress;
+    isExist && setIsValidRefCode(true);
   };
 
-  const callNewHoldingToken = async () => {
-    const deposit = await newHoldingToken(
-      chainId,
-      walletProvider,
-      tokenAddress,
-      amount,
-      tokenDecimals,
-      freezeForDays * 86400,
-      freezeForX,
-      isInUSDT,
-      refcode,
-    );
-    if (deposit) {
-      console.log('Deposit successfull');
-    } else {
-      console.log('Error trying to make new ether holding');
-    }
-  };
+  // const callNewHoldingEther = async () => {
+  //   const deposit = await newHoldingEther(
+  //     chainId,
+  //     walletProvider,
+  //     amount,
+  //     freezeForDays * 86400,
+  //     freezeForX,
+  //     refcode,
+  //   );
+  //   if (deposit) {
+  //     toast.success('New holding has been created');
+  //     router.push(
+  //       `/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`,
+  //     );
+  //   } else {
+  //     toast.error('Error trying to make new holding');
+  //   }
+  // };
 
-  // const callGetServiceFee = async () => {
-  //   const exactFee = await getServiceFee(
-  //     1,
+  // const callNewHoldingToken = async () => {
+  //   const deposit = await newHoldingToken(
   //     chainId,
   //     walletProvider,
   //     tokenAddress,
   //     amount,
   //     tokenDecimals,
+  //     freezeForDays * 86400,
+  //     freezeForX,
+  //     isInUSDT,
+  //     refcode,
   //   );
-  //   console.log(exactFee);
-  //   return exactFee;
+  //   if (deposit) {
+  //     toast.success('New holding has been created');
+  //     router.push(
+  //       `/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`,
+  //     );
+  //   } else {
+  //     toast.error('Error trying to make new holding');
+  //   }
   // };
 
   const handleAmount = (e) => {
@@ -227,6 +232,10 @@ export default function Hold() {
     setIsPickTokenModalVisible(boolean);
   };
 
+  const handleShowConfirmDepositModal = (boolean) => {
+    setIsConfirmDepositModalVisible(boolean);
+  };
+
   const modals = [
     null,
     <PickTokenModal
@@ -247,11 +256,33 @@ export default function Hold() {
       setFreezeForX={setFreezeForX}
       setIsInUSDT={setIsInUSDT}
     />,
+    <ConfirmDepositModal
+      isConfirmDepositModalVisible={isConfirmDepositModalVisible}
+      handleShowConfirmDepositModal={handleShowConfirmDepositModal}
+      depositType={depositType}
+      tokenAddress={tokenAddress}
+      tokenName={tokenName}
+      tokenSymbol={tokenSymbol}
+      tokenDecimals={tokenDecimals}
+      tokenBalance={tokenBalance}
+      etherBalance={etherBalance}
+      amount={amount}
+      amountUSDT={amountUSDT}
+      priceETHinUSD={priceETHinUSD}
+      priceTOKENinETH={priceTOKENinETH}
+      freezeForDays={freezeForDays}
+      unfreezeDate={unfreezeDate}
+      freezeForX={freezeForX}
+      isInUSDT={isInUSDT}
+      refcode={refcode}
+      isValidRefCode={isValidRefCode}
+    />,
   ];
 
   return (
     <>
       {isPickTokenModalVisible && <>{modals[1]}</>}
+      {isConfirmDepositModalVisible && <>{modals[2]}</>}
       {isConnected ? (
         <div className="hold flex column center">
           <h1>New holding</h1>
@@ -451,7 +482,7 @@ export default function Hold() {
             priceTOKENinETH !== 0 &&
             !isErrorGettingPriceTOKEN && (
               <div className="result-info flex column">
-                {refcode && (
+                {isValidRefCode && (
                   <div className="flex space-between">
                     <div>Discount</div>
                     <div>{refcode} -20%</div>
@@ -518,9 +549,9 @@ export default function Hold() {
                             tokenName !== 'ETH' && amount > amountApproved
                           }
                           onClick={() => {
-                            tokenName === 'ETH'
-                              ? callNewHoldingEther()
-                              : callNewHoldingToken();
+                            setIsConfirmDepositModalVisible(
+                              !isConfirmDepositModalVisible,
+                            );
                           }}
                         >
                           Hold

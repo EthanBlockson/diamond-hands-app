@@ -62,3 +62,41 @@
     }
   }
 }
+
+.confirm-deposit-modal {
+  .micro-header {
+    margin-bottom: 7px;
+  }
+
+  .target {
+    margin-bottom: 20px;
+
+    .token-amount {
+      font-size: 35px;
+
+      > :first-child {
+        margin-right: 10px;
+      }
+    }
+
+    .token-symbol {
+      font-size: 20px;
+    }
+  }
+
+  .tx-details {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+.confirm-deposit-waiting {
+  .info {
+    > :first-child {
+      margin-bottom: 20px;
+    }
+
+    margin-top: 15px;
+    margin-bottom: 50px;
+  }
+}
