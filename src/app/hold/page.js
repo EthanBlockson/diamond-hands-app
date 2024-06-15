@@ -257,6 +257,7 @@ export default function Hold() {
       setIsInUSDT={setIsInUSDT}
     />,
     <ConfirmDepositModal
+      key="default"
       isConfirmDepositModalVisible={isConfirmDepositModalVisible}
       handleShowConfirmDepositModal={handleShowConfirmDepositModal}
       depositType={depositType}
