@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import {
   useWeb3ModalProvider,
@@ -25,7 +26,7 @@ export default function Hold() {
   const { address, chainId } = useWeb3ModalAccount();
 
   const [isConnected, setIsConnected] = useState(false);
-  const [depositType, setDepositType] = useState('DateOrPrice');
+  const [depositType, setDepositType] = useState('Price');
   const [tokenAddress, setTokenAddress] = useState(null);
   const [tokenName, setTokenName] = useState('ETH');
   const [tokenSymbol, setTokenSymbol] = useState('ETH');
@@ -132,47 +133,6 @@ export default function Hold() {
     const isExist = referrerAddress !== zeroAddress;
     isExist && setIsValidRefCode(true);
   };
-
-  // const callNewHoldingEther = async () => {
-  //   const deposit = await newHoldingEther(
-  //     chainId,
-  //     walletProvider,
-  //     amount,
-  //     freezeForDays * 86400,
-  //     freezeForX,
-  //     refcode,
-  //   );
-  //   if (deposit) {
-  //     toast.success('New holding has been created');
-  //     router.push(
-  //       `/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`,
-  //     );
-  //   } else {
-  //     toast.error('Error trying to make new holding');
-  //   }
-  // };
-
-  // const callNewHoldingToken = async () => {
-  //   const deposit = await newHoldingToken(
-  //     chainId,
-  //     walletProvider,
-  //     tokenAddress,
-  //     amount,
-  //     tokenDecimals,
-  //     freezeForDays * 86400,
-  //     freezeForX,
-  //     isInUSDT,
-  //     refcode,
-  //   );
-  //   if (deposit) {
-  //     toast.success('New holding has been created');
-  //     router.push(
-  //       `/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`,
-  //     );
-  //   } else {
-  //     toast.error('Error trying to make new holding');
-  //   }
-  // };
 
   const handleAmount = (e) => {
     const inputAmount = parseFloat(e.target.value);
@@ -286,32 +246,61 @@ export default function Hold() {
       {isConfirmDepositModalVisible && <>{modals[2]}</>}
       {isConnected ? (
         <div className="hold flex column center">
-          <h1>New holding</h1>
           <div className="holding-types flex row gapped">
             <button
-              disabled={depositType === 'DateOrPrice'}
-              onClick={() => handleDepositTypeTab('DateOrPrice')}
+              className={`deposit-tab flex center-baseline ${
+                depositType === 'Price' && 'active'
+              }`}
+              onClick={() => handleDepositTypeTab('Price')}
             >
-              Until date or price
+              <Image
+                src={`/img/icons/chart.svg`}
+                width={17}
+                height={17}
+                alt=""
+              />
+              Until price
             </button>
             <button
-              disabled={depositType === 'Date'}
+              className={`deposit-tab flex center-baseline ${
+                depositType === 'Date' && 'active'
+              }`}
               onClick={() => handleDepositTypeTab('Date')}
             >
+              <Image
+                src={`/img/icons/clock.svg`}
+                width={17}
+                height={17}
+                alt=""
+              />
               Until date
             </button>
             <button
-              disabled={depositType === 'Price'}
-              onClick={() => handleDepositTypeTab('Price')}
+              className={`deposit-tab flex center-baseline ${
+                depositType === 'DateOrPrice' && 'active'
+              }`}
+              onClick={() => handleDepositTypeTab('DateOrPrice')}
             >
-              Until price
+              <Image
+                src={`/img/icons/clock.svg`}
+                width={17}
+                height={17}
+                alt=""
+              />
+              <Image
+                src={`/img/icons/chart.svg`}
+                width={17}
+                height={17}
+                alt=""
+              />
+              Until date price
             </button>
           </div>
           <div className="form flex column">
+            <div>Amount</div>
             <div className="pick-tokens flex space-between">
               <div className="left">
                 <div className="token-amount">
-                  <div>Amount</div>
                   <input
                     className="amount"
                     type="number"
@@ -323,15 +312,21 @@ export default function Hold() {
                   />
                 </div>
               </div>
-              <div className="right">
-                <div className="token-address">
-                  <div>Token</div>
+              <div className="right flex center-baseline">
+                <div className="token-address flex end">
                   <button
+                    className="pick-token flex row center-baseline"
                     onClick={() =>
                       setIsPickTokenModalVisible(!isPickTokenModalVisible)
                     }
                   >
                     {tokenSymbol}
+                    <Image
+                      src={`/img/icons/arrow-down-black.svg`}
+                      width={20}
+                      height={20}
+                      alt=""
+                    />
                   </button>
                 </div>
               </div>
@@ -360,6 +355,8 @@ export default function Hold() {
                 </span>
               </div>
             </div>
+          </div>
+          <div className="form flex column">
             {depositType !== 'Price' && (
               <div
                 className={`date-slider flex space-between 
@@ -489,7 +486,7 @@ export default function Hold() {
                     <div>{refcode} -20%</div>
                   </div>
                 )}
-                <div className="flex space-between">
+                <div className="fee flex space-between">
                   <div>Fee</div>
                   <div className="flex row gapped">
                     {refcode && (
@@ -512,56 +509,54 @@ export default function Hold() {
                 </div>
               </div>
             )}
-          <div className="form flex column">
-            <div className="buttons flex space-between gapped">
-              {isErrorGettingPriceTOKEN || priceTOKENinETH == 0 ? (
-                <button disabled>Insufficient liquidity (V2)</button>
-              ) : (
-                <>
-                  {(!amount ||
-                    amount > tokenBalance ||
-                    (depositType === 'DateOrPrice' &&
-                      (freezeForX < 1.01 || freezeForDays < 1)) ||
-                    (depositType === 'Date' && freezeForDays < 1) ||
-                    (depositType === 'Price' && freezeForX < 1.01)) && (
-                    <button disabled>
-                      {!amount
-                        ? 'Enter an amount'
-                        : amount > tokenBalance
-                        ? `Insufficient ${tokenSymbol} balance`
-                        : 'Set holding goal'}
-                    </button>
-                  )}
-                  {amount <= tokenBalance &&
-                    amount > 0 &&
-                    ((depositType === 'DateOrPrice' &&
-                      freezeForX >= 1.01 &&
-                      freezeForDays >= 1) ||
-                      (depositType === 'Date' && freezeForDays >= 1) ||
-                      (depositType === 'Price' && freezeForX >= 1.01)) && (
-                      <>
-                        {tokenName !== 'ETH' && amount > amountApproved && (
-                          <button onClick={() => callSetSpendingApproval()}>
-                            Approve
-                          </button>
-                        )}
-                        <button
-                          disabled={
-                            tokenName !== 'ETH' && amount > amountApproved
-                          }
-                          onClick={() => {
-                            setIsConfirmDepositModalVisible(
-                              !isConfirmDepositModalVisible,
-                            );
-                          }}
-                        >
-                          Hold
+          <div className="buttons flex space-between">
+            {isErrorGettingPriceTOKEN || priceTOKENinETH == 0 ? (
+              <button disabled>Insufficient liquidity (V2)</button>
+            ) : (
+              <>
+                {(!amount ||
+                  amount > tokenBalance ||
+                  (depositType === 'DateOrPrice' &&
+                    (freezeForX < 1.01 || freezeForDays < 1)) ||
+                  (depositType === 'Date' && freezeForDays < 1) ||
+                  (depositType === 'Price' && freezeForX < 1.01)) && (
+                  <button disabled>
+                    {!amount
+                      ? 'Enter an amount'
+                      : amount > tokenBalance
+                      ? `Insufficient ${tokenSymbol} balance`
+                      : 'Set holding goal'}
+                  </button>
+                )}
+                {amount <= tokenBalance &&
+                  amount > 0 &&
+                  ((depositType === 'DateOrPrice' &&
+                    freezeForX >= 1.01 &&
+                    freezeForDays >= 1) ||
+                    (depositType === 'Date' && freezeForDays >= 1) ||
+                    (depositType === 'Price' && freezeForX >= 1.01)) && (
+                    <>
+                      {tokenName !== 'ETH' && amount > amountApproved && (
+                        <button onClick={() => callSetSpendingApproval()}>
+                          Approve
                         </button>
-                      </>
-                    )}
-                </>
-              )}
-            </div>
+                      )}
+                      <button
+                        disabled={
+                          tokenName !== 'ETH' && amount > amountApproved
+                        }
+                        onClick={() => {
+                          setIsConfirmDepositModalVisible(
+                            !isConfirmDepositModalVisible,
+                          );
+                        }}
+                      >
+                        Hold
+                      </button>
+                    </>
+                  )}
+              </>
+            )}
           </div>
         </div>
       ) : (

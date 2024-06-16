@@ -1,11 +1,20 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('../../../public/fonts/Inter.ttf');
+}
+
+@font-face {
+  font-family: 'Basel';
+  src: url('../../../public/fonts/Basel.ttf');
+}
+
 body {
-  background: whitesmoke;
-  font-family: Arial;
+  background: white;
+  font-family: Inter;
 }
 
 a {
-  color: teal;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .micro-header {
@@ -15,8 +24,11 @@ a {
 }
 
 input {
+  all: unset;
   width: 100%;
+  font-family: Basel;
   font-size: 18px;
+  color: $black;
 
   &[type='checkbox'] {
     width: 20px;
@@ -25,7 +37,9 @@ input {
 }
 
 button {
-  padding: 15px;
+  all: unset;
+  padding: 12px;
+  background: $diamond-lightest;
 
   &:hover {
     cursor: pointer;
@@ -56,12 +70,18 @@ button {
 }
 
 .form {
-  gap: 20px;
-  padding: 20px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  border: 1px solid gray;
-  width: 500px;
+  gap: 10px;
+  padding: 16px;
+  margin-bottom: 6px;
+  border-radius: 18px;
+  background: $light-gray;
+  width: 460px;
+  font-size: 14px;
+  color: $dark-gray;
+
+  &:hover {
+    box-shadow: inset 0 0 0 1px #f0f0f0;
+  }
 }
 
 .low-opacity {

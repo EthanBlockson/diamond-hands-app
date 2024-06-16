@@ -1,7 +1,58 @@
 .header {
-  padding: 20px;
+  padding: 10px 20px 14px 20px;
+  margin-bottom: 40px;
 }
 
 .menu {
-  font-size: 18px;
+  padding: 10px;
+
+  > a {
+    color: $dark-gray;
+    padding: 9px 17px 9px 17px;
+    &:hover {
+      background: $light-gray;
+      border-radius: 12px;
+    }
+    &.active {
+      color: $black;
+    }
+  }
+}
+
+button {
+  &.chain-selector {
+    background: none;
+    height: fit-content;
+    gap: 4px;
+    padding: 9px 12px 9px 9px;
+    &:hover {
+      background: $light-gray;
+      border-radius: 12px;
+    }
+  }
+
+  &.wallet {
+    background: none;
+    font-family: Inter;
+    margin-right: -9px;
+    padding: 9px 12px;
+    border-radius: 20px;
+    color: $black;
+
+    &:hover {
+      background: $light-gray;
+    }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: $diamond-light;
+    }
+  }
+
+  &.connect {
+    color: $diamond;
+    border-radius: 20px;
+  }
 }

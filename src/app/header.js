@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import {
   useWeb3Modal,
@@ -13,6 +14,7 @@ import { shortenAddress } from '@/utils/shortenAddress';
 import isSupportedChainId from '@/utils/isSupportedChainId';
 
 export default function Header() {
+  const pathname = usePathname();
   const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
@@ -28,28 +30,38 @@ export default function Header() {
   }, [address, chainId]);
 
   return (
-    <div className="header flex space-between">
+    <div className="header flex space-between center-baseline">
       <div className="left flex row center-baseline gapped">
-        <Link href="/">
-          <h1>Diamond Hands</h1>
+        <Link className="logo" href="/">
+          <Image
+            src={`/img/brand/logo-long6.png`}
+            width={135}
+            height={36}
+            alt=""
+          />
         </Link>
-        <div className="menu flex row gapped">
-          <Link href="/hold">Hold</Link>
+        <div className="menu flex row">
+          <Link href="/hold" className={pathname === '/hold' && 'active'}>
+            Hold
+          </Link>
           {isConnected ? (
             <Link
               href={`/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`}
+              className={pathname.includes('/holdings') && 'active'}
             >
               My holdings
             </Link>
           ) : null}
-          <Link href="/earn">Earn</Link>
+          <Link href="/earn" className={pathname === '/earn' && 'active'}>
+            Earn
+          </Link>
         </div>
       </div>
       <div className="right flex row gapped">
         {isConnected ? (
           <>
             <button
-              className="flex row center-baseline gapped"
+              className="chain-selector flex row center-baseline"
               onClick={() => open({ view: 'Networks' })}
             >
               <Image
@@ -62,15 +74,23 @@ export default function Header() {
               />
               <Image
                 src={`/img/icons/arrow-down.svg`}
-                width={15}
-                height={15}
+                width={13}
+                height={13}
                 alt=""
               />
             </button>
-            <button onClick={() => open()}>{shortenAddress(address)}</button>
+            <button
+              className="wallet flex row gapped center-baseline"
+              onClick={() => open()}
+            >
+              <div className="avatar"></div>
+              <div>{address && shortenAddress(address)}</div>
+            </button>
           </>
         ) : (
-          <button onClick={() => open({ view: 'Connect' })}>Connect</button>
+          <button className="connect" onClick={() => open({ view: 'Connect' })}>
+            Connect
+          </button>
         )}
       </div>
     </div>
