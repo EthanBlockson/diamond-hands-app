@@ -123,9 +123,9 @@ export default function ConfirmDepositModal({
   const ToDateBlock = () => {
     return (
       <div className="target flex gapped">
-        <div className="token">
+        <div>
           <div className="token-amount">{formatDate(unfreezeDate)}</div>
-          <div className="token-symbol">{freezeForDays} days</div>
+          <div>{freezeForDays} days</div>
         </div>
       </div>
     );
@@ -134,7 +134,7 @@ export default function ConfirmDepositModal({
   const ToPriceBlock = () => {
     return (
       <div className="target flex gapped">
-        <div className="token">
+        <div>
           <div className="token-amount flex row wrap">
             {isEther ? (
               <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
@@ -150,7 +150,7 @@ export default function ConfirmDepositModal({
             {isEther ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
             {isEther ? 'ETH' : tokenSymbol}
           </div>
-          <div className="token-symbol">{freezeForX}x</div>
+          <div>{freezeForX}x</div>
         </div>
       </div>
     );
@@ -161,18 +161,23 @@ export default function ConfirmDepositModal({
       {isConfirmDepositModalVisible && (
         <div className="any-modal-background">
           <div className="any-modal flex column" ref={modalRef}>
-            <div className="any-modal-header flex space-between">
+            <div className="any-modal-header flex space-between center-baseline">
               {!isWaitingForTx ? <h1>Review holding</h1> : <div></div>}
               <div
                 className="close-modal-icon"
                 onClick={handleCloseConfirmDepositModal}
               >
-                X
+                <Image
+                  src={`/img/icons/close.svg`}
+                  width={30}
+                  height={30}
+                  alt=""
+                />
               </div>
             </div>
             {!isWaitingForTx ? (
               <div className="confirm-deposit-modal flex column">
-                <div className="micro-header">Hold</div>
+                <div className="little-text micro-header">Hold</div>
                 <div className="target flex space-between gapped">
                   <div className="token">
                     <div className="token-amount">
@@ -193,40 +198,40 @@ export default function ConfirmDepositModal({
                 </div>
                 {depositType === 'DateOrPrice' && (
                   <>
-                    <div className="micro-header">Until</div>
+                    <div className="little-text micro-header">Until</div>
                     <ToDateBlock />
-                    <div className="micro-header">OR Until</div>
+                    <div className="little-text micro-header">OR Until</div>
                     <ToPriceBlock />
                   </>
                 )}
                 {depositType === 'Date' && (
                   <>
-                    <div className="micro-header">Until</div>
+                    <div className="little-text micro-header">Until</div>
                     <ToDateBlock />
                   </>
                 )}
                 {depositType === 'Price' && (
                   <>
-                    <div className="micro-header">Until</div>
+                    <div className="little-text micro-header">Until</div>
                     <ToPriceBlock />
                   </>
                 )}
                 <div className="horizontal-line"></div>
-                <div className="tx-details">
+                <div className="tx-details flex column gapped-mini">
                   <div className="flex space-between">
-                    <div className="micro-header">Chain</div>
-                    <div className="micro-header">{chainIdToName[chainId]}</div>
+                    <div className="little-text">Chain</div>
+                    <div className="little-text">{chainIdToName[chainId]}</div>
                   </div>
                   {isValidRefCode && (
                     <div className="flex space-between">
-                      <div className="micro-header">Discount</div>
-                      <div className="micro-header">{refcode} -20%</div>
+                      <div className="little-text">Discount</div>
+                      <div className="little-text">{refcode} -20%</div>
                     </div>
                   )}
                   {serviceFee && (
                     <div className="flex space-between">
-                      <div className="micro-header">Service fee</div>
-                      <div className="micro-header">
+                      <div className="little-text">Service fee</div>
+                      <div className="little-text">
                         {cutDecimals(serviceFee, 2)} ETH
                       </div>
                     </div>
@@ -234,9 +239,12 @@ export default function ConfirmDepositModal({
                 </div>
                 {etherBalance < serviceFee ||
                 (isEther && etherBalance < amount + serviceFee) ? (
-                  <button disabled>Insufficient ETH balance</button>
+                  <button className="large" disabled>
+                    Insufficient ETH balance
+                  </button>
                 ) : (
                   <button
+                    className="large"
                     onClick={() => {
                       isEther ? callNewHoldingEther() : callNewHoldingToken();
                     }}
@@ -254,7 +262,7 @@ export default function ConfirmDepositModal({
                     {cutDecimals(amount, 2)} {tokenSymbol}
                   </div>
                 </div>
-                <div className="flex center micro-header">
+                <div className="flex center little-text micro-header">
                   Proceed in your wallet
                 </div>
               </div>

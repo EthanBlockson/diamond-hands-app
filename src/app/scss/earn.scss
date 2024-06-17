@@ -1,10 +1,16 @@
 .earn {
   .details {
     margin-top: 20px;
-    opacity: 50%;
+    margin-bottom: 20px;
+
+    img {
+      margin-bottom: 20px;
+      opacity: 30%;
+    }
   }
 
   .form {
+    gap: 15px;
     input {
       font-size: 20px;
 
@@ -13,6 +19,9 @@
       }
 
       &.link {
+        font-family: sans-serif;
+        color: $diamond;
+        // font-weight: 600;
         font-size: 16px;
       }
     }
@@ -21,5 +30,6 @@
   .earned-ether {
     font-size: 50px;
     font-weight: bold;
+    color: $black;
   }
 }

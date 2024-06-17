@@ -17,18 +17,47 @@ a {
   text-decoration: none;
 }
 
+.little-text {
+  font-size: 14px;
+  color: $dark-gray;
+
+  &.black {
+    color: $black;
+  }
+}
+
 .micro-header {
   margin-bottom: 7px;
-  font-size: 14px;
-  color: gray;
 }
 
 input {
   all: unset;
   width: 100%;
-  font-family: Basel;
-  font-size: 18px;
+  font-family: sans-serif;
+  font-size: 35px;
   color: $black;
+
+  &[type='range'] {
+    all: unset;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    margin: 5px 0;
+    height: 7px;
+    border-radius: 10px;
+    background: $diamond-light;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: $diamond;
+      cursor: pointer;
+    }
+  }
 
   &[type='checkbox'] {
     width: 20px;
@@ -40,6 +69,7 @@ button {
   all: unset;
   padding: 12px;
   background: $diamond-lightest;
+  font-weight: 600;
 
   &:hover {
     cursor: pointer;
@@ -50,13 +80,47 @@ button {
   }
 
   &.mini {
-    padding: 0;
+    padding: 4px 11px;
+    border-radius: 15px;
+    color: $diamond;
+  }
+
+  &.large {
+    text-align: center;
+    padding: 17px 30px;
+    font-family: sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+
+    border-radius: 18px;
+    color: white;
+    background-color: $diamond;
+    opacity: 85%;
+
+    &:hover {
+      opacity: 100%;
+    }
+
+    &:disabled {
+      background: $light-gray;
+      color: $dark-gray;
+    }
   }
 }
 
 .horizontal-line {
   height: 1px;
-  background: gray;
+  background: $medium-gray;
+
+  &.divided {
+    width: 100%;
+  }
+}
+
+.or-line {
+  .or {
+    padding: 0 10px;
+  }
 }
 
 .unavailable {
@@ -88,6 +152,18 @@ button {
   opacity: 50%;
 }
 
+.loading-component {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  filter: grayscale(100%);
+  opacity: 50%;
+
+  gap: 30px;
+  font-size: 20px;
+  color: $dark-gray;
+}
 /* FLEX TEMPLATES */
 
 .flex {
@@ -141,4 +217,8 @@ button {
 
 .flex.gapped {
   gap: 10px;
+}
+
+.flex.gapped-mini {
+  gap: 5px;
 }

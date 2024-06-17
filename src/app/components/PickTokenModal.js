@@ -125,25 +125,31 @@ export default function PickTokenModal({
       {isPickTokenModalVisible && (
         <div className="any-modal-background">
           <div className="any-modal flex column" ref={modalRef}>
-            <div className="any-modal-header flex space-between">
+            <div className="any-modal-header flex space-between center-baseline">
               <h1>Select a token</h1>
               <div
                 className="close-modal-icon"
                 onClick={handleClosePickTokenModal}
               >
-                X
+                <Image
+                  src={`/img/icons/close.svg`}
+                  width={30}
+                  height={30}
+                  alt=""
+                />
               </div>
             </div>
             <div className="pick-token-modal flex column">
               <div className="search-block flex space-between">
-                <div className="search-field flex row">
+                <div className="search-field flex row center-baseline">
                   <Image
                     src={`/img/icons/search.svg`}
-                    width={25}
-                    height={25}
+                    width={20}
+                    height={20}
                     alt=""
                   />
                   <input
+                    autofocus
                     type="text"
                     autoComplete="off"
                     value={contractAddress}
@@ -190,11 +196,11 @@ export default function PickTokenModal({
                     </div>
                   ))}
               </div>
-              <div className="search-results flex column gapped">
+              <div className="search-results flex column">
                 {contractAddress && (
                   <>
                     <div className="horizontal-line"></div>
-                    <div>Search results</div>
+                    <div className="low-opacity">Search results</div>
                     {!isValidContractAddress && (
                       <div className="no-token">
                         Provided address is incorrect
@@ -202,15 +208,12 @@ export default function PickTokenModal({
                     )}
                     {searchResults && (
                       <div
-                        className="token-found flex space-between"
+                        className="token-found flex space-between center-baseline"
                         onClick={pickTokenFromSearch}
                       >
-                        <div className="token-name">
-                          <div>{searchResults.name}</div>
-                          <div className="flex row gapped">
-                            <div>{searchResults.symbol}</div>
-                            <div>{shortenAddress(contractAddress)}</div>
-                          </div>
+                        <div className="token-name flex column gapped-mini">
+                          <div className="name">{searchResults.name}</div>
+                          <div className="symbol">{searchResults.symbol}</div>
                         </div>
                         <div className="token-balance">
                           {cutDecimals(searchResults.balanceNumber, 4)}

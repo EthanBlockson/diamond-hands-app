@@ -10,6 +10,7 @@
 
     button {
       &.deposit-tab {
+        font-size: 15px;
         border-radius: 20px;
         background: white;
         color: $dark-gray;
@@ -30,14 +31,6 @@
   }
 
   .form {
-    input {
-      font-size: 20px;
-
-      &.amount {
-        font-size: 35px;
-      }
-    }
-
     .token-balance {
       margin-left: 3px;
 
@@ -59,6 +52,9 @@
     .date-slider,
     .price-slider {
       .right {
+        input {
+          text-align: right;
+        }
         width: 20%;
       }
     }
@@ -91,16 +87,12 @@
     }
   }
 
-  .fee {
-    margin-bottom: 20px;
-  }
-
   .buttons {
     text-align: center;
     gap: 20px;
     width: 460px;
     height: 58px;
-    font-family: Basel, sans-serif;
+    font-family: sans-serif;
     font-weight: 600;
     font-size: 20px;
 
@@ -120,6 +112,10 @@
         color: $dark-gray;
       }
     }
+  }
+
+  .fee {
+    margin-bottom: 20px;
   }
 
   .result-info {

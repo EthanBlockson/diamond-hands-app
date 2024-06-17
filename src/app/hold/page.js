@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import {
+  useWeb3Modal,
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers5/react';
@@ -20,12 +21,14 @@ import addDaysToDate from '@/utils/addDaysToDate';
 import { fees } from '../../../fees';
 import { chainCurrency } from '@/utils/chainCurrency';
 import ConfirmDepositModal from '../components/ConfirmDepositModal';
+import { LoadingComponent } from '../components/LoadingComponent';
 
 export default function Hold() {
+  const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
 
-  const [isConnected, setIsConnected] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [depositType, setDepositType] = useState('Price');
   const [tokenAddress, setTokenAddress] = useState(null);
   const [tokenName, setTokenName] = useState('ETH');
@@ -57,6 +60,7 @@ export default function Hold() {
     useState(false);
 
   useEffect(() => {
+    setIsLoaded(false);
     if (address && chainId) {
       setTokenName(chainCurrency[chainId]);
       setTokenSymbol(chainCurrency[chainId]); // default token is ether
@@ -65,10 +69,8 @@ export default function Hold() {
       callGetRefAddressByRefCode(refcode);
       callGetEtherBalance();
       callGetPriceETHinUSD();
-      setIsConnected(true);
-    } else {
-      setIsConnected(false);
     }
+    setIsLoaded(true);
   }, [address, chainId]);
 
   const callGetEtherBalance = async () => {
@@ -244,7 +246,7 @@ export default function Hold() {
     <>
       {isPickTokenModalVisible && <>{modals[1]}</>}
       {isConfirmDepositModalVisible && <>{modals[2]}</>}
-      {isConnected ? (
+      {isLoaded ? (
         <div className="hold flex column center">
           <div className="holding-types flex row gapped">
             <button
@@ -293,7 +295,7 @@ export default function Hold() {
                 height={17}
                 alt=""
               />
-              Until date price
+              Until date or price
             </button>
           </div>
           <div className="form flex column">
@@ -319,6 +321,7 @@ export default function Hold() {
                     onClick={() =>
                       setIsPickTokenModalVisible(!isPickTokenModalVisible)
                     }
+                    disabled={!address}
                   >
                     {tokenSymbol}
                     <Image
@@ -365,7 +368,7 @@ export default function Hold() {
                   'unavailable'
                 }`}
               >
-                <div className="left">
+                <div className="left flex column gapped">
                   <div>Hold until {formatDate(unfreezeDate)}</div>
                   <input
                     type="range"
@@ -376,25 +379,35 @@ export default function Hold() {
                     value={freezeForDays}
                     onChange={handleDays}
                   />
+                  <div className="flex end">
+                    {freezeForDays === limitDays && (
+                      <button
+                        className="mini"
+                        onClick={() => setLimitDays(limitDays * 2)}
+                      >
+                        more!
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="right">
+                <div className="right flex column gapped-mini">
                   <input
+                    className="white-input"
                     type="number"
                     autoComplete="off"
                     placeholder="12"
                     value={freezeForDays}
                     onChange={handleDays}
                   />
-                  <div>days</div>
-                  {freezeForDays === limitDays && (
-                    <button
-                      className="mini"
-                      onClick={() => setLimitDays(limitDays * 2)}
-                    >
-                      more!
-                    </button>
-                  )}
+                  <div className="flex end">days</div>
                 </div>
+              </div>
+            )}
+            {depositType === 'DateOrPrice' && (
+              <div className="or-line flex space-between center-baseline">
+                <div className="horizontal-line divided"></div>
+                <div className="or">OR</div>
+                <div className="horizontal-line divided"></div>
               </div>
             )}
             {depositType !== 'Date' && (
@@ -405,8 +418,8 @@ export default function Hold() {
                   'unavailable'
                 }`}
               >
-                <div className="left">
-                  <div className="flex row gapped">
+                <div className="left flex column gapped">
+                  <div className="flex row gapped-mini center-baseline">
                     <div>
                       Hold until {freezeForX ? freezeForX : '?'}X in{' '}
                       {isInUSDT ? 'USDT' : 'ETH'}
@@ -426,51 +439,60 @@ export default function Hold() {
                     id="slider"
                     name="slider"
                     min="1.01"
-                    max={limitX}
+                    max={limitX + 0.1}
                     step="0.1"
                     value={freezeForX}
                     onChange={handleX}
                   />
-                  <div className="flex row">
-                    {tokenName === 'ETH' ? (
-                      <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
-                    ) : (
-                      <>
-                        {priceTOKENinETH ? (
-                          <div>
-                            {isInUSDT
-                              ? cutLongZeroNumber(
-                                  priceTOKENinETH * priceETHinUSD * freezeForX,
-                                )
-                              : cutLongZeroNumber(priceTOKENinETH * freezeForX)}
-                          </div>
-                        ) : (
-                          <div>...</div>
-                        )}
-                      </>
-                    )}
-                    &nbsp;
-                    {tokenName === 'ETH' ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
-                    {tokenName === 'ETH' ? 'ETH' : tokenSymbol}
+                  <div className="flex row space-between">
+                    <div className="flex row">
+                      {tokenName === 'ETH' ? (
+                        <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
+                      ) : (
+                        <>
+                          {priceTOKENinETH ? (
+                            <div>
+                              {isInUSDT
+                                ? cutLongZeroNumber(
+                                    priceTOKENinETH *
+                                      priceETHinUSD *
+                                      freezeForX,
+                                  )
+                                : cutLongZeroNumber(
+                                    priceTOKENinETH * freezeForX,
+                                  )}
+                            </div>
+                          ) : (
+                            <div>...</div>
+                          )}
+                        </>
+                      )}
+                      &nbsp;
+                      {tokenName === 'ETH' ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}
+                      /{tokenName === 'ETH' ? 'ETH' : tokenSymbol}
+                    </div>
+                    <div>
+                      {freezeForX === limitX && (
+                        <button
+                          className="mini"
+                          onClick={() => setLimitX(limitX * 4)}
+                        >
+                          more!
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="right">
+                <div className="right flex column gapped-mini">
                   <input
+                    className="white-input flex end"
                     type="number"
                     autoComplete="off"
                     placeholder="100"
                     value={freezeForX}
                     onChange={handleX}
                   />
-                  <div>X&apos;s</div>
-                  {freezeForX === limitX && (
-                    <button
-                      className="mini"
-                      onClick={() => setLimitX(limitX * 4)}
-                    >
-                      more!
-                    </button>
-                  )}
+                  <div className="flex end">X&apos;s</div>
                 </div>
               </div>
             )}
@@ -479,7 +501,7 @@ export default function Hold() {
             amount <= tokenBalance &&
             priceTOKENinETH !== 0 &&
             !isErrorGettingPriceTOKEN && (
-              <div className="result-info flex column">
+              <div className="result-info flex column gapped-mini">
                 {isValidRefCode && (
                   <div className="flex space-between">
                     <div>Discount</div>
@@ -514,53 +536,59 @@ export default function Hold() {
               <button disabled>Insufficient liquidity (V2)</button>
             ) : (
               <>
-                {(!amount ||
-                  amount > tokenBalance ||
-                  (depositType === 'DateOrPrice' &&
-                    (freezeForX < 1.01 || freezeForDays < 1)) ||
-                  (depositType === 'Date' && freezeForDays < 1) ||
-                  (depositType === 'Price' && freezeForX < 1.01)) && (
-                  <button disabled>
-                    {!amount
-                      ? 'Enter an amount'
-                      : amount > tokenBalance
-                      ? `Insufficient ${tokenSymbol} balance`
-                      : 'Set holding goal'}
-                  </button>
-                )}
-                {amount <= tokenBalance &&
-                  amount > 0 &&
-                  ((depositType === 'DateOrPrice' &&
-                    freezeForX >= 1.01 &&
-                    freezeForDays >= 1) ||
-                    (depositType === 'Date' && freezeForDays >= 1) ||
-                    (depositType === 'Price' && freezeForX >= 1.01)) && (
-                    <>
-                      {tokenName !== 'ETH' && amount > amountApproved && (
-                        <button onClick={() => callSetSpendingApproval()}>
-                          Approve
-                        </button>
-                      )}
-                      <button
-                        disabled={
-                          tokenName !== 'ETH' && amount > amountApproved
-                        }
-                        onClick={() => {
-                          setIsConfirmDepositModalVisible(
-                            !isConfirmDepositModalVisible,
-                          );
-                        }}
-                      >
-                        Hold
+                {!address ? (
+                  <button onClick={() => open()}>Connect wallet</button>
+                ) : (
+                  <>
+                    {(!amount ||
+                      amount > tokenBalance ||
+                      (depositType === 'DateOrPrice' &&
+                        (freezeForX < 1.01 || freezeForDays < 1)) ||
+                      (depositType === 'Date' && freezeForDays < 1) ||
+                      (depositType === 'Price' && freezeForX < 1.01)) && (
+                      <button disabled>
+                        {!amount
+                          ? 'Enter an amount'
+                          : amount > tokenBalance
+                          ? `Insufficient ${tokenSymbol} balance`
+                          : 'Set holding goal'}
                       </button>
-                    </>
-                  )}
+                    )}
+                    {amount <= tokenBalance &&
+                      amount > 0 &&
+                      ((depositType === 'DateOrPrice' &&
+                        freezeForX >= 1.01 &&
+                        freezeForDays >= 1) ||
+                        (depositType === 'Date' && freezeForDays >= 1) ||
+                        (depositType === 'Price' && freezeForX >= 1.01)) && (
+                        <>
+                          {tokenName !== 'ETH' && amount > amountApproved && (
+                            <button onClick={() => callSetSpendingApproval()}>
+                              Approve
+                            </button>
+                          )}
+                          <button
+                            disabled={
+                              tokenName !== 'ETH' && amount > amountApproved
+                            }
+                            onClick={() => {
+                              setIsConfirmDepositModalVisible(
+                                !isConfirmDepositModalVisible,
+                              );
+                            }}
+                          >
+                            Hold
+                          </button>
+                        </>
+                      )}
+                  </>
+                )}
               </>
             )}
           </div>
         </div>
       ) : (
-        <div>Waiting for wallet connection...</div>
+        <LoadingComponent />
       )}
     </>
   );

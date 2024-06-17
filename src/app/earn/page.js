@@ -1,7 +1,9 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import {
+  useWeb3Modal,
   useWeb3ModalProvider,
   useWeb3ModalAccount,
 } from '@web3modal/ethers5/react';
@@ -10,12 +12,14 @@ import { getRefs } from '@/calls/getRefs';
 import cutDecimals from '@/utils/cutDecimals';
 import { chainIdToName } from '@/utils/chainIdToName';
 import toast from 'react-hot-toast';
+import { LoadingComponent } from '../components/LoadingComponent';
 
 export default function Earn() {
+  const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
 
-  const [isConnected, setIsConnected] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [newCode, setNewCode] = useState('');
   const [isWrongCode, setIsWrongCode] = useState(false);
   const [myCode, setMyCode] = useState(undefined);
@@ -23,12 +27,13 @@ export default function Earn() {
   const [totalProfit, setTotalProfit] = useState(undefined);
 
   useEffect(() => {
+    setIsLoaded(false);
     if (address && chainId) {
-      setIsConnected(true);
       callGetRefs();
     } else {
-      setIsConnected(false);
+      clearAll();
     }
+    setIsLoaded(true);
   }, [address, chainId]);
 
   const callGetRefs = async () => {
@@ -77,37 +82,57 @@ export default function Earn() {
     toast.success('Link copied to clipboard');
   };
 
+  const clearAll = () => {
+    setMyCode(undefined);
+    setTotalInvited(undefined);
+    setTotalProfit(undefined);
+  };
+
   return (
     <>
-      {myCode === undefined ||
-      totalInvited === undefined ||
-      totalProfit === undefined ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {isConnected ? (
-            <div className="earn flex column center">
-              <h1>Earn with referrals</h1>
-              <div className="details flex column center">
-                <div>
-                  Get 30% share of all deposit or withdrawal fees forever
-                </div>
-                <div>Invited user get 20% discount on deposits</div>
+      {isLoaded ? (
+        <div className="earn flex column center">
+          <h1>Earn with referrals</h1>
+          <div className="details flex column center">
+            <Image
+              src={`/img/icons/promo.svg`}
+              width={140}
+              height={140}
+              alt=""
+            />
+            <div className="flex column center gapped-mini">
+              <div>
+                Get <b>30% share</b> of each deposit or withdrawal fees{' '}
+                <u>forever</u>
               </div>
+              <div>Invited user get 20% discount on deposits</div>
+            </div>
+          </div>
+          {!address ? (
+            <div className="connection flex">
+              {!address && (
+                <button className="large" onClick={() => open()}>
+                  Connect wallet
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
               {myCode ? (
                 <>
-                  <div className="form flex column">
+                  <div
+                    className="form flex column"
+                    onClick={() => handleBufferCopied(myCode)}
+                  >
                     <div>My referral link</div>
                     <div className="copy-refcode flex row gapped">
                       <input
                         className="link"
                         type="text"
-                        value={`https://diamond-hands.app/invite/${myCode}`}
+                        value={`diamond-hands.app/invite/${myCode}`}
                         readOnly
                       />
-                      <button onClick={() => handleBufferCopied(myCode)}>
-                        Copy
-                      </button>
+                      <button className="mini">Copy</button>
                     </div>
                   </div>
                   <div className="form flex column center">
@@ -122,34 +147,37 @@ export default function Earn() {
                   </div>
                 </>
               ) : (
-                <div className="form flex column">
-                  <div>Create your refcode to start inviting</div>
-                  <div className="create-refcode flex row gapped">
-                    <input
-                      className="code"
-                      type="text"
-                      autoComplete="off"
-                      placeholder="MYCODE"
-                      value={newCode}
-                      onChange={handleInputRefcode}
-                    />
-                    <button
-                      disabled={isWrongCode || !newCode}
-                      onClick={callCreateMyRefCode}
-                    >
-                      Create
-                    </button>
+                <>
+                  <div className="form flex column">
+                    <div>Create your refcode to start inviting</div>
+                    <div className="create-refcode flex row gapped">
+                      <input
+                        className="code"
+                        type="text"
+                        autoComplete="off"
+                        placeholder="SATOSHI"
+                        value={newCode}
+                        onChange={handleInputRefcode}
+                      />
+                      <button
+                        className="mini"
+                        disabled={!address || isWrongCode || !newCode}
+                        onClick={callCreateMyRefCode}
+                      >
+                        Create
+                      </button>
+                    </div>
+                    {isWrongCode && (
+                      <div>*Only latin letters and numbers is allowed</div>
+                    )}
                   </div>
-                  {isWrongCode && (
-                    <div>*Only latin letters and numbers is allowed</div>
-                  )}
-                </div>
+                </>
               )}
-            </div>
-          ) : (
-            <div>Waiting for wallet connection...</div>
+            </>
           )}
-        </>
+        </div>
+      ) : (
+        <LoadingComponent />
       )}
     </>
   );
