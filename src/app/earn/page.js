@@ -152,6 +152,7 @@ export default function Earn() {
                     <div>Create your refcode to start inviting</div>
                     <div className="create-refcode flex row gapped">
                       <input
+                        autoFocus
                         className="code"
                         type="text"
                         autoComplete="off"

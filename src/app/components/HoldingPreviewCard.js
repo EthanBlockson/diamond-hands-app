@@ -13,6 +13,7 @@ import { percentDifference } from '@/utils/percentDifference';
 import { getERC20 } from '@/calls/getERC20';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { chainCurrency } from '@/utils/chainCurrency';
+import { LoadingIndicator } from './LoadingIndicator';
 
 export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
   const { walletProvider } = useWeb3ModalProvider();
@@ -129,8 +130,8 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
     <>
       {holdingTokenData || holdingData.isPureEther ? (
         <div>
-          <div className="flex space-between">
-            <div>#{id}</div>
+          <div className="card-header flex space-between">
+            <div className="id"># {id}</div>
             <div className="chain-logo flex end">
               <Image
                 src={`/img/chains/${chainId}.svg`}
@@ -155,9 +156,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
           {holdingData.isActive ? (
             <>
               {isAbleToClaim ? (
-                <div className="able-to-claim">
-                  <div>Ready to withdraw</div>
-                </div>
+                <div className="ended able-to-claim">Withdraw</div>
               ) : (
                 <div className="progresses flex column gapped">
                   {holdingData.holdUntilTimestamp ? (
@@ -169,7 +168,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                         <div
                           className="elapsed date"
                           style={{
-                            width: `${dateProgress}%`,
+                            width: `${dateProgress ? dateProgress : 0}%`,
                           }}
                         ></div>
                       </div>
@@ -227,7 +226,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                         <div
                           className="elapsed price"
                           style={{
-                            width: `${priceProgress}%`,
+                            width: `${priceProgress ? priceProgress : 0}%`,
                           }}
                         ></div>
                       </div>
@@ -250,8 +249,16 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
             </>
           ) : (
             <>
-              {/* DOUBLE PATH */}
-              {(holdingData.holdUntilTimestamp &&
+              <div className="ended finalized flex column center gapped">
+                <Image
+                  src={`/img/brand/hand.png`}
+                  width={35}
+                  height={35}
+                  alt=""
+                />
+                <div>Diamond handed</div>
+              </div>
+              {/* {(holdingData.holdUntilTimestamp &&
                 holdingData.holdUntilPriceInWETH) ||
               (holdingData.holdUntilTimestamp &&
                 holdingData.holdUntilPriceInUSD) ? (
@@ -296,7 +303,6 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                 </div>
               ) : (
                 <>
-                  {/* SOLO PATH */}
                   {holdingData.holdUntilTimestamp ? (
                     <div className="finalized flex column center gapped">
                       💎
@@ -355,12 +361,12 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                     </div>
                   ) : null}
                 </>
-              )}
+              )} */}
             </>
           )}
         </div>
       ) : (
-        <div>Loading...</div>
+        <LoadingIndicator />
       )}
     </>
   );

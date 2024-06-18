@@ -87,33 +87,6 @@
     }
   }
 
-  .buttons {
-    text-align: center;
-    gap: 20px;
-    width: 460px;
-    height: 58px;
-    font-family: sans-serif;
-    font-weight: 600;
-    font-size: 20px;
-
-    button {
-      width: 100%;
-      border-radius: 18px;
-      color: white;
-      background-color: $diamond;
-      opacity: 85%;
-
-      &:hover {
-        opacity: 100%;
-      }
-
-      &:disabled {
-        background: $light-gray;
-        color: $dark-gray;
-      }
-    }
-  }
-
   .fee {
     margin-bottom: 20px;
   }
@@ -123,5 +96,32 @@
     margin-top: 10px;
     font-size: 14px;
     color: $dark-gray;
+  }
+}
+
+.buttons {
+  text-align: center;
+  gap: 20px;
+  width: 460px;
+  height: 58px;
+  font-family: sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+
+  button {
+    width: 100%;
+    border-radius: 18px;
+    color: white;
+    background-color: $diamond;
+    opacity: 85%;
+
+    &:hover {
+      opacity: 100%;
+    }
+
+    &:disabled {
+      background: $light-gray;
+      color: $dark-gray;
+    }
   }
 }

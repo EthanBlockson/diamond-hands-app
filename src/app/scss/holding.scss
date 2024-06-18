@@ -1,50 +1,91 @@
 .holding {
+  margin-bottom: 90px;
+
+  h1 {
+    margin-bottom: 20px;
+  }
+
+  .of-who {
+    margin-top: -20px;
+    margin-bottom: 20px;
+  }
+
+  .breadcrumb {
+    margin-bottom: 30px;
+    font-size: 14px;
+    color: $dark-gray;
+
+    &:hover {
+      color: $diamond;
+    }
+  }
+
   .unmatched,
   .empty {
-    width: 40%;
-    margin-top: 20px;
+    width: 420px;
     margin-bottom: 20px;
     padding: 20px;
+    border: 1px solid $medium-gray;
+    border-radius: 16px;
 
     &.network {
-      background: orange;
+      button {
+        margin-top: 10px;
+      }
     }
 
     &.address {
-      border: 1px solid black;
-      background: white;
+      word-break: all;
+    }
 
-      p {
-        word-break: break-all;
-      }
+    img {
+      filter: grayscale(100);
+      opacity: 30%;
+    }
+
+    span {
+      font-weight: 600;
+      word-break: break-all;
     }
   }
 
   .progress-bar {
-    height: 20px;
-    background: lightgray;
+    height: 18px;
+    background: $medium-gray;
+    border-radius: 6px;
 
     .elapsed {
       min-height: 100%;
-      background: blue;
+      background: $diamond;
+      border-radius: 6px;
     }
   }
 
   .preview-cards {
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
     width: 60%;
     gap: 25px;
 
     .preview-card {
       flex: 0 1 calc(33.3% - 20px);
       max-width: calc(33.3% - 20px);
+      height: fit-content;
       padding: 10px;
-      border: 1px solid black;
+      border: 1px solid $medium-gray;
+      border-radius: 12px;
+
+      &:hover {
+        box-shadow: #2222220a 0px 0px 10px 0px;
+      }
 
       a {
         text-decoration: none;
         color: inherit;
+      }
+
+      .card-header {
+        margin-bottom: 8px;
       }
 
       .token-header {
@@ -53,28 +94,66 @@
 
       .token-amount,
       .token-name {
+        font-size: 18px;
         font-weight: bold;
       }
 
       .progress-mini {
         gap: 5px;
+        font-size: 14px;
       }
 
-      .able-to-claim {
-        padding: 10px;
-        background: greenyellow;
-      }
+      .ended {
+        padding: 13px 25px;
+        text-align: center;
+        border-radius: 12px;
 
-      .finalized {
-        padding: 10px;
-        border: 1px solid blue;
+        &.able-to-claim {
+          background: $diamond;
+          color: white;
+          font-weight: bold;
+          opacity: 100%;
+
+          &:hover {
+            opacity: 90%;
+          }
+        }
+
+        &.finalized {
+          color: $diamond;
+          background: $diamond-lightest;
+          padding-top: 25px;
+          padding-bottom: 25px;
+          font-size: 14px;
+          border: 1px solid $diamond-light;
+          border-radius: 14px;
+        }
       }
     }
   }
 
   .form {
     &.wide {
-      padding: 40px;
+      background: white;
+      border: 1px solid $medium-gray;
+
+      &:hover {
+        box-shadow: none;
+      }
+
+      .token-amount,
+      .token-name {
+        color: $black;
+        font-size: 35px;
+        font-weight: bold;
+      }
+
+      .token-name {
+        font-size: 26px;
+        &:hover {
+          color: $diamond;
+        }
+      }
     }
 
     .token-amount {
@@ -87,16 +166,28 @@
       font-weight: bold;
     }
 
+    .active-progress {
+      margin: 25px 0;
+    }
+
     .progress {
-      width: 75%;
-      border: 1px solid lightgray;
+      border: 1px solid $medium-gray;
+      border-radius: 16px;
       padding: 10px;
     }
 
     .finalized {
-      width: 75%;
-      border: 1px solid lightgray;
-      padding: 10px;
+      margin: 20px 0;
+      color: $diamond;
+      background: $diamond-lightest;
+      padding: 25px;
+      font-size: 14px;
+      border: 1px solid $diamond-light;
+      border-radius: 14px;
+
+      .finalized-head {
+        margin-bottom: 20px;
+      }
     }
 
     .buttons {
@@ -108,5 +199,9 @@
 
   .result-info {
     width: 460px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: $dark-gray;
   }
 }

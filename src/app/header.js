@@ -41,18 +41,24 @@ export default function Header() {
           />
         </Link>
         <div className="menu flex row">
-          <Link href="/hold" className={pathname === '/hold' && 'active'}>
+          <Link
+            href="/hold"
+            className={pathname === '/hold' ? 'active' : undefined}
+          >
             Hold
           </Link>
           {isConnected ? (
             <Link
               href={`/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`}
-              className={pathname.includes('/holdings') && 'active'}
+              className={pathname.includes('/holdings') ? 'active' : undefined}
             >
               My holdings
             </Link>
           ) : null}
-          <Link href="/earn" className={pathname === '/earn' && 'active'}>
+          <Link
+            href="/earn"
+            className={pathname === '/earn' ? 'active' : undefined}
+          >
             Earn
           </Link>
         </div>

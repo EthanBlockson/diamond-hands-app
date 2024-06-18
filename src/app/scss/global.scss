@@ -17,6 +17,10 @@ a {
   text-decoration: none;
 }
 
+h1 {
+  font-family: Basel;
+}
+
 .little-text {
   font-size: 14px;
   color: $dark-gray;
@@ -70,6 +74,7 @@ button {
   padding: 12px;
   background: $diamond-lightest;
   font-weight: 600;
+  color: white;
 
   &:hover {
     cursor: pointer;
@@ -93,7 +98,6 @@ button {
     font-size: 20px;
 
     border-radius: 18px;
-    color: white;
     background-color: $diamond;
     opacity: 85%;
 
@@ -111,6 +115,10 @@ button {
 .horizontal-line {
   height: 1px;
   background: $medium-gray;
+
+  &.blue {
+    background: $diamond-light;
+  }
 
   &.divided {
     width: 100%;
@@ -148,8 +156,22 @@ button {
   }
 }
 
+.id {
+  height: fit-content;
+  border-radius: 5px;
+  padding: 1px 4px;
+  background: $medium-gray;
+  color: $dark-gray;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .low-opacity {
   opacity: 50%;
+}
+
+.bold {
+  font-weight: bold;
 }
 
 .loading-component {
@@ -197,6 +219,10 @@ button {
 .flex.center {
   justify-content: center;
   align-items: center;
+
+  &.text {
+    text-align: center;
+  }
 }
 
 .flex.center-vertical {

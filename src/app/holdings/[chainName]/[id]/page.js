@@ -1,3 +1,5 @@
+// TODO: You can DRY this components render flow as in ConfirmDepositModal.js
+
 'use client';
 
 import Link from 'next/link';
@@ -26,6 +28,7 @@ import { withdrawHoldingToken } from '@/calls/withdrawHoldingToken';
 import { withdrawHoldingEther } from '@/calls/withdrawHoldingEther';
 import toast from 'react-hot-toast';
 import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
+import { LoadingComponent } from '@/app/components/LoadingComponent';
 
 export default function HoldingsById({ params }) {
   const { chainName, id } = params;
@@ -33,10 +36,12 @@ export default function HoldingsById({ params }) {
   const { address, chainId } = useWeb3ModalAccount();
   const { open } = useWeb3Modal();
 
-  const [isConnected, setIsConnected] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isNetworkMatch, setIsNetworkMatch] = useState(true);
   const [holdingInfo, setHoldingInfo] = useState(undefined);
   const [holdingTokenData, setHoldingTokenData] = useState(undefined);
+  const [holdingType, setHoldingType] = useState(undefined);
+  // 0) only until date any coin, 1) ether until price, 2) token until weth price, 3) token until usd price
   const [dateProgress, setDateProgress] = useState(undefined);
   const [priceETHinUSD, setPriceETHinUSD] = useState(0);
   const [priceTOKENinETH, setPriceTOKENinETH] = useState(undefined);
@@ -44,21 +49,21 @@ export default function HoldingsById({ params }) {
   const [isAbleToClaim, setIsAbleToClaim] = useState(false);
   const [withdrawalFee, setWithdrawalFee] = useState(undefined);
   const [etherBalance, setEtherBalance] = useState(undefined);
+  const [isNoHoldings, setIsNoHoldings] = useState(false);
 
   const zeroAddress = '0x0000000000000000000000000000000000000000';
   const currentTimestamp = Math.floor(Date.now() / 1000);
 
   useEffect(() => {
+    setIsLoaded(false);
     if (address && chainId) {
-      setIsConnected(true);
       const chainIdFromLink = nameToChainId[chainName];
       chainIdFromLink !== chainId
         ? setIsNetworkMatch(false)
         : setIsNetworkMatch(true);
       multiCallGetHoldingInfo();
-    } else {
-      setIsConnected(false);
     }
+    setIsLoaded(true);
   }, [address && chainId]);
 
   const multiCallGetHoldingInfo = async () => {
@@ -68,7 +73,12 @@ export default function HoldingsById({ params }) {
       id,
     );
 
-    fetchedHoldingInfo && setHoldingInfo(fetchedHoldingInfo);
+    if (!fetchedHoldingInfo || fetchedHoldingInfo.amount === 0) {
+      setIsNoHoldings(true);
+      return;
+    } else if (fetchedHoldingInfo.amount > 0) {
+      setHoldingInfo(fetchedHoldingInfo);
+    }
 
     const etherDollarPrice = await callGetPriceETHinUSD();
 
@@ -76,6 +86,7 @@ export default function HoldingsById({ params }) {
       fetchedHoldingInfo.isPureEther &&
       fetchedHoldingInfo.holdAtPriceInWETH
     ) {
+      setHoldingType(1);
       setPriceProgress(
         100 - // price growing in this case is reverse progress
           percentDifference(
@@ -97,6 +108,7 @@ export default function HoldingsById({ params }) {
       fetchedHoldingInfo.isPureEther &&
       fetchedHoldingInfo.holdUntilTimestamp
     ) {
+      setHoldingType(0);
       setDateProgress(
         percentDifference(
           fetchedHoldingInfo.holdAtTimestamp,
@@ -120,6 +132,7 @@ export default function HoldingsById({ params }) {
       );
 
       if (fetchedHoldingInfo.holdAtPriceInWETH) {
+        setHoldingType(2);
         setPriceProgress(
           percentDifference(
             fetchedHoldingInfo.holdAtPriceInWETH,
@@ -138,6 +151,7 @@ export default function HoldingsById({ params }) {
       }
 
       if (fetchedHoldingInfo.holdAtPriceInUSD) {
+        setHoldingType(3);
         setPriceProgress(
           percentDifference(
             fetchedHoldingInfo.holdAtPriceInUSD,
@@ -159,6 +173,7 @@ export default function HoldingsById({ params }) {
       }
 
       if (fetchedHoldingInfo.holdUntilTimestamp) {
+        setHoldingType(0);
         setDateProgress(
           percentDifference(
             fetchedHoldingInfo.holdAtTimestamp,
@@ -284,456 +299,313 @@ export default function HoldingsById({ params }) {
     open({ view: 'Networks' });
   };
 
+  const TickerPair = () => {
+    return holdingInfo.isPureEther
+      ? `USDT/${chainCurrency[chainId]}`
+      : holdingInfo.holdUntilPriceInWETH
+      ? `${chainCurrency[chainId]}/${
+          holdingTokenData?.symbol ? holdingTokenData.symbol : '...'
+        }`
+      : holdingInfo.holdUntilPriceInUSD
+      ? `USDT/${holdingTokenData?.symbol ? holdingTokenData.symbol : '...'}`
+      : null;
+  };
+
+  const ToDateBlock = () => {
+    return (
+      <>
+        {holdingInfo.isActive ? (
+          <div className="progress flex column gapped">
+            <div className="flex center text">
+              To date {formatDate(holdingInfo.holdUntilTimestamp, true)}
+            </div>
+            <div className="progress-bar date">
+              <div
+                className="elapsed date"
+                style={{
+                  width: `${dateProgress ? dateProgress : 0}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+        ) : null}
+      </>
+    );
+  };
+
+  const ToPriceBlock = () => {
+    return (
+      <>
+        {holdingInfo.isActive ? (
+          <div className="progress flex column gapped">
+            <div className="flex center text">
+              <div>
+                To price{' '}
+                {holdingInfo.isPureEther
+                  ? cutDecimals(1 / holdingInfo.holdUntilPriceInWETH, 2)
+                  : holdingInfo.holdUntilPriceInWETH
+                  ? cutLongZeroNumber(holdingInfo.holdUntilPriceInWETH, true)
+                  : holdingInfo.holdUntilPriceInUSD
+                  ? cutLongZeroNumber(holdingInfo.holdUntilPriceInUSD, true)
+                  : null}{' '}
+                <TickerPair />
+              </div>
+            </div>
+            <div className="progress-bar price">
+              <div
+                className="elapsed price"
+                style={{
+                  width: `${priceProgress ? priceProgress : 0}%`,
+                }}
+              ></div>
+            </div>
+            <div>
+              Started at:{' '}
+              {holdingInfo.isPureEther
+                ? cutDecimals(1 / holdingInfo.holdAtPriceInWETH, 2)
+                : holdingInfo.holdUntilPriceInWETH
+                ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH, true)
+                : holdingInfo.holdUntilPriceInUSD
+                ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD, true)
+                : null}{' '}
+              <TickerPair />
+            </div>
+            <div>
+              Current price: {''}
+              {holdingInfo.isPureEther
+                ? cutDecimals(priceETHinUSD, 2)
+                : holdingInfo.holdUntilPriceInWETH
+                ? cutLongZeroNumber(priceTOKENinETH)
+                : holdingInfo.holdUntilPriceInUSD
+                ? cutLongZeroNumber(priceTOKENinETH * priceETHinUSD)
+                : null}{' '}
+              <TickerPair />
+            </div>
+          </div>
+        ) : null}
+      </>
+    );
+  };
+
+  const FinalizedToDateBlock = () => {
+    return (
+      <div className="flex center text bold">
+        From {formatDate(holdingInfo.holdAtTimestamp, true)}, to{' '}
+        {formatDate(holdingInfo.holdUntilTimestamp, true)}
+      </div>
+    );
+  };
+
+  const FinalizedToPriceBlock = () => {
+    return (
+      <div className="flex center text bold">
+        <div>
+          From{' '}
+          {holdingInfo.isPureEther
+            ? cutDecimals(1 / holdingInfo.holdAtPriceInWETH, 2)
+            : holdingInfo.holdUntilPriceInWETH
+            ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH, true)
+            : holdingInfo.holdUntilPriceInUSD
+            ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD, true)
+            : null}{' '}
+          <TickerPair /> to{' '}
+          {holdingInfo.isPureEther
+            ? cutDecimals(1 / holdingInfo.holdUntilPriceInWETH, 2)
+            : holdingInfo.holdUntilPriceInWETH
+            ? cutLongZeroNumber(holdingInfo.holdUntilPriceInWETH, true)
+            : holdingInfo.holdUntilPriceInUSD
+            ? cutLongZeroNumber(holdingInfo.holdUntilPriceInUSD, true)
+            : null}{' '}
+          <TickerPair />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
-      {holdingInfo === undefined ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {isConnected && (
-            <div className="holding flex column center">
-              <h1>Holdings explorer</h1>
-              <Link
-                href={`/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`}
-                className="flex start"
-              >
-                ← Back to my holdings
-              </Link>
-              {isNetworkMatch ? (
+      {isLoaded ? (
+        <div className="holding flex column center">
+          <h1>Holdings explorer</h1>
+          {isNetworkMatch ? (
+            <>
+              {holdingInfo && holdingInfo.amount > 0 ? (
                 <>
-                  {holdingInfo.amount > 0 ? (
-                    <>
-                      <div className="form wide flex column center">
-                        <div className="chain-logo">
+                  <Link
+                    href={`/holdings/${chainIdToNameLowerCase[chainId]}/address/${holdingInfo.user}`}
+                    className="breadcrumb"
+                  >
+                    ← Back to{' '}
+                    {holdingInfo.user === address
+                      ? 'my holdings'
+                      : `holdings of ${shortenAddress(holdingInfo.user)}`}
+                  </Link>
+                  <div className="form wide flex column">
+                    <div className="flex space-between">
+                      <div className="id"># {id}</div>
+                      <div className="chain-logo">
+                        <Image
+                          src={`/img/chains/${chainId}.svg`}
+                          width={35}
+                          height={35}
+                          alt=""
+                        />
+                      </div>
+                    </div>
+                    <div className="flex column center">
+                      <div className="token-amount">
+                        {cutLongZeroNumber(holdingInfo.amount)}
+                      </div>
+                      <Link
+                        href={
+                          holdingInfo.token !== zeroAddress
+                            ? `https://dexscreener.com/search?q=${holdingInfo.token}`
+                            : `https://ethereum.org`
+                        }
+                        target="_blank"
+                        rel="nofollow noopener noreferrer"
+                      >
+                        <div className="token-name colored-hover">
+                          {holdingInfo.isPureEther
+                            ? chainCurrency[chainId]
+                            : holdingTokenData
+                            ? `${holdingTokenData.symbol} (${holdingTokenData.name})`
+                            : '...'}
+                        </div>
+                      </Link>
+                    </div>
+
+                    {holdingInfo.isActive && (
+                      <div className="active-progress flex column gapped">
+                        {holdingInfo.holdUntilTimestamp ? (
+                          <ToDateBlock />
+                        ) : null}
+                        {holdingInfo.holdUntilTimestamp &&
+                        (holdingInfo.holdUntilPriceInWETH ||
+                          holdingInfo.holdUntilPriceInUSD) ? (
+                          <div className="or-line flex space-between center-baseline">
+                            <div className="horizontal-line divided"></div>
+                            <div className="or">OR</div>
+                            <div className="horizontal-line divided"></div>
+                          </div>
+                        ) : null}
+                        {holdingInfo.holdUntilPriceInWETH ||
+                        holdingInfo.holdUntilPriceInUSD ? (
+                          <ToPriceBlock />
+                        ) : null}
+                      </div>
+                    )}
+
+                    {!holdingInfo.isActive && (
+                      <div className="finalized flex column  gapped">
+                        <div className="finalized-head flex column center gapped">
                           <Image
-                            src={`/img/chains/${chainId}.svg`}
-                            width={25}
-                            height={25}
+                            src={`/img/brand/hand.png`}
+                            width={35}
+                            height={35}
                             alt=""
                           />
+                          Diamond handed
                         </div>
-                        <div className="flex column center">
-                          <div className="token-amount">
-                            {cutLongZeroNumber(holdingInfo.amount)}
+                        {holdingInfo.holdUntilTimestamp ? (
+                          <FinalizedToDateBlock />
+                        ) : null}
+                        {holdingInfo.holdUntilTimestamp &&
+                        (holdingInfo.holdUntilPriceInWETH ||
+                          holdingInfo.holdUntilPriceInUSD) ? (
+                          <div className="or-line flex space-between center-baseline">
+                            <div className="horizontal-line divided blue"></div>
+                            <div className="or">OR</div>
+                            <div className="horizontal-line divided blue"></div>
                           </div>
-                          <div className="token-name">
-                            {holdingInfo.isPureEther
-                              ? chainCurrency[chainId]
-                              : holdingTokenData
-                              ? `${holdingTokenData.symbol} (${holdingTokenData.name})`
-                              : '...'}
-                          </div>
-                          <div>
-                            {holdingInfo.token !== zeroAddress
-                              ? shortenAddress(holdingInfo.token)
-                              : null}
-                          </div>
-                        </div>
-                        <div className="held-by low-opacity flex column center">
-                          <div>held by {shortenAddress(holdingInfo.user)}</div>
-                          <div>
-                            at {formatDate(holdingInfo.holdAtTimestamp, true)}
-                          </div>
-                          <div>with id {id}</div>
-                        </div>
-                        {holdingInfo.isActive ? (
-                          <>
-                            {/* To date */}
-                            {holdingInfo.holdUntilTimestamp ? (
-                              <div className="progress flex column gapped">
-                                <div className="flex space-between">
-                                  <div>⏱️</div>
-                                  <div>
-                                    holding until{' '}
-                                    {formatDate(
-                                      holdingInfo.holdUntilTimestamp,
-                                      true,
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="progress-bar date">
-                                  <div
-                                    className="elapsed date"
-                                    style={{
-                                      width: `${dateProgress}%`,
-                                    }}
-                                  ></div>
-                                </div>
-                              </div>
-                            ) : null}
-                            {/* To price WETH */}
-                            {holdingInfo.holdUntilPriceInWETH &&
-                            holdingInfo.isPureEther == false &&
-                            holdingTokenData &&
-                            priceETHinUSD &&
-                            priceTOKENinETH ? (
-                              <div className="progress flex column gapped">
-                                <div className="flex space-between">
-                                  <div></div>
-                                  <div>
-                                    holding until{' '}
-                                    {cutLongZeroNumber(
-                                      holdingInfo.holdUntilPriceInWETH,
-                                      true,
-                                    )}{' '}
-                                    {chainCurrency[chainId]}/
-                                    {holdingTokenData.symbol}
-                                  </div>
-                                </div>
-                                <div className="progress-bar price">
-                                  <div
-                                    className="elapsed price"
-                                    style={{
-                                      width: `${priceProgress}%`,
-                                    }}
-                                  ></div>
-                                </div>
-                                {holdingInfo.holdUntilPriceInWETH ? (
-                                  <>
-                                    <div>Progress: {priceProgress}%</div>
-                                    <div>
-                                      Started at:{' '}
-                                      {cutLongZeroNumber(
-                                        holdingInfo.holdAtPriceInWETH,
-                                      )}{' '}
-                                      {chainCurrency[chainId]}/
-                                      {holdingTokenData?.symbol}
-                                    </div>
-                                    <div>
-                                      Current price:{' '}
-                                      {cutLongZeroNumber(priceTOKENinETH)}{' '}
-                                      {chainCurrency[chainId]}/
-                                      {holdingTokenData?.symbol}
-                                    </div>
-                                  </>
-                                ) : null}
-                              </div>
-                            ) : null}
-                            {/* To TOKEN price in USDT */}
-                            {holdingInfo.holdUntilPriceInUSD &&
-                            holdingInfo.isPureEther == false &&
-                            holdingTokenData &&
-                            priceETHinUSD &&
-                            priceTOKENinETH ? (
-                              <div className="progress flex column gapped">
-                                <div className="flex space-between">
-                                  <div></div>
-                                  <div>
-                                    holding until{' '}
-                                    {cutLongZeroNumber(
-                                      holdingInfo.holdUntilPriceInUSD,
-                                      true,
-                                    )}{' '}
-                                    USDT/{holdingTokenData.symbol}
-                                  </div>
-                                </div>
-                                <div className="progress-bar price">
-                                  <div
-                                    className="elapsed price"
-                                    style={{
-                                      width: `${priceProgress}%`,
-                                    }}
-                                  ></div>
-                                </div>
-                                {holdingInfo.holdUntilPriceInUSD ? (
-                                  <>
-                                    <div>Progress: {priceProgress}%</div>
-                                    <div>
-                                      Started at:{' '}
-                                      {cutLongZeroNumber(
-                                        holdingInfo.holdAtPriceInUSD,
-                                      )}{' '}
-                                      USDT/{holdingTokenData?.symbol}
-                                    </div>
-                                    <div>
-                                      Current price:{' '}
-                                      {cutLongZeroNumber(
-                                        priceTOKENinETH * priceETHinUSD,
-                                      )}{' '}
-                                      USDT/
-                                      {holdingTokenData?.symbol}
-                                    </div>
-                                  </>
-                                ) : null}
-                              </div>
-                            ) : null}
-                            {/* To ETH price in USDT */}
-                            {holdingInfo.isPureEther == true &&
-                            holdingInfo.holdAtPriceInWETH &&
-                            priceETHinUSD ? (
-                              <div className="progress flex column gapped">
-                                <div className="flex space-between">
-                                  <div></div>
-                                  <div>
-                                    holding until{' '}
-                                    {cutDecimals(
-                                      1 / holdingInfo.holdUntilPriceInWETH,
-                                      2,
-                                    )}{' '}
-                                    USDT/{chainCurrency[chainId]}
-                                  </div>
-                                </div>
-                                <div className="progress-bar price">
-                                  <div
-                                    className="elapsed price"
-                                    style={{
-                                      width: `${priceProgress}%`,
-                                    }}
-                                  ></div>
-                                </div>
-                                {holdingInfo.holdUntilPriceInWETH ? (
-                                  <>
-                                    <div>Progress: {priceProgress}%</div>
-                                    <div>
-                                      Started at:{' '}
-                                      {cutDecimals(
-                                        1 / holdingInfo.holdAtPriceInWETH,
-                                        2,
-                                      )}{' '}
-                                      USDT/{chainCurrency[chainId]}
-                                    </div>
-                                    <div>
-                                      Current price:{' '}
-                                      {cutDecimals(priceETHinUSD, 2)} USDT/
-                                      {chainCurrency[chainId]}
-                                    </div>
-                                  </>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </>
-                        ) : (
-                          <>
-                            {(holdingInfo.holdUntilTimestamp &&
-                              holdingInfo.holdUntilPriceInWETH) ||
-                            (holdingInfo.holdUntilTimestamp &&
-                              holdingInfo.holdUntilPriceInUSD) ? (
-                              <>
-                                <div className="finalized flex column center gapped">
-                                  💎
-                                  <div>
-                                    Successfuly held from{' '}
-                                    {formatDate(
-                                      holdingInfo.holdAtTimestamp,
-                                      true,
-                                    )}
-                                    , to{' '}
-                                    {formatDate(
-                                      holdingInfo.holdUntilTimestamp,
-                                      true,
-                                    )}{' '}
-                                    <b>OR</b>
-                                    {/* To date and WETH price */}
-                                    {holdingInfo.holdUntilPriceInWETH &&
-                                    holdingInfo.isPureEther == false &&
-                                    holdingTokenData &&
-                                    priceETHinUSD &&
-                                    priceTOKENinETH ? (
-                                      <div>
-                                        from{' '}
-                                        {cutLongZeroNumber(
-                                          holdingInfo.holdAtPriceInWETH,
-                                        )}{' '}
-                                        {chainCurrency[chainId]}/
-                                        {holdingTokenData?.symbol} to{' '}
-                                        {cutLongZeroNumber(
-                                          holdingInfo.holdUntilPriceInWETH,
-                                          true,
-                                        )}{' '}
-                                        {chainCurrency[chainId]}/
-                                        {holdingTokenData.symbol}
-                                      </div>
-                                    ) : null}
-                                    {/* To date and TOKEN price in USDT */}
-                                    {holdingInfo.holdUntilPriceInUSD &&
-                                    holdingInfo.isPureEther == false &&
-                                    holdingTokenData &&
-                                    priceETHinUSD &&
-                                    priceTOKENinETH ? (
-                                      <div>
-                                        from{' '}
-                                        {cutLongZeroNumber(
-                                          holdingInfo.holdAtPriceInUSD,
-                                        )}{' '}
-                                        USDT/{holdingTokenData?.symbol} to{' '}
-                                        {cutLongZeroNumber(
-                                          holdingInfo.holdUntilPriceInUSD,
-                                          true,
-                                        )}{' '}
-                                        USDT/{holdingTokenData.symbol}
-                                      </div>
-                                    ) : null}
-                                    {/* To date and ETH price in USDT */}
-                                    {holdingInfo.isPureEther == true &&
-                                    holdingInfo.holdAtPriceInWETH &&
-                                    priceETHinUSD ? (
-                                      <div>
-                                        from{' '}
-                                        {cutDecimals(
-                                          1 / holdingInfo.holdAtPriceInWETH,
-                                          2,
-                                        )}{' '}
-                                        USDT/{chainCurrency[chainId]} to{' '}
-                                        {cutDecimals(
-                                          1 / holdingInfo.holdUntilPriceInWETH,
-                                          2,
-                                        )}{' '}
-                                        USDT/{chainCurrency[chainId]}
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                {/* To date */}
-                                {holdingInfo.holdUntilTimestamp ? (
-                                  <div className="finalized flex column center gapped">
-                                    💎
-                                    <div>
-                                      Successfuly held from{' '}
-                                      {formatDate(
-                                        holdingInfo.holdAtTimestamp,
-                                        true,
-                                      )}
-                                      , to{' '}
-                                      {formatDate(
-                                        holdingInfo.holdUntilTimestamp,
-                                        true,
-                                      )}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {/* To price WETH */}
-                                {holdingInfo.holdUntilPriceInWETH &&
-                                holdingInfo.isPureEther == false &&
-                                holdingTokenData &&
-                                priceETHinUSD &&
-                                priceTOKENinETH ? (
-                                  <div className="finalized flex column center gapped">
-                                    💎
-                                    <div>
-                                      Successfully held from{' '}
-                                      {cutLongZeroNumber(
-                                        holdingInfo.holdAtPriceInWETH,
-                                      )}{' '}
-                                      {chainCurrency[chainId]}/
-                                      {holdingTokenData?.symbol} to{' '}
-                                      {cutLongZeroNumber(
-                                        holdingInfo.holdUntilPriceInWETH,
-                                        true,
-                                      )}{' '}
-                                      {chainCurrency[chainId]}/
-                                      {holdingTokenData.symbol}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {/* To TOKEN price in USDT */}
-                                {holdingInfo.holdUntilPriceInUSD &&
-                                holdingInfo.isPureEther == false &&
-                                holdingTokenData &&
-                                priceETHinUSD &&
-                                priceTOKENinETH ? (
-                                  <div className="finalized flex column center gapped">
-                                    💎
-                                    <div>
-                                      Successfully held from{' '}
-                                      {cutLongZeroNumber(
-                                        holdingInfo.holdAtPriceInUSD,
-                                      )}{' '}
-                                      USDT/{holdingTokenData?.symbol} to{' '}
-                                      {cutLongZeroNumber(
-                                        holdingInfo.holdUntilPriceInUSD,
-                                        true,
-                                      )}{' '}
-                                      USDT/{holdingTokenData.symbol}
-                                    </div>
-                                  </div>
-                                ) : null}
-                                {/* To ETH price in USDT */}
-                                {holdingInfo.isPureEther == true &&
-                                holdingInfo.holdAtPriceInWETH &&
-                                priceETHinUSD ? (
-                                  <div className="finalized flex column center gapped">
-                                    💎
-                                    <div>
-                                      Successfully held from{' '}
-                                      {cutDecimals(
-                                        1 / holdingInfo.holdAtPriceInWETH,
-                                        2,
-                                      )}{' '}
-                                      USDT/{chainCurrency[chainId]} to{' '}
-                                      {cutDecimals(
-                                        1 / holdingInfo.holdUntilPriceInWETH,
-                                        2,
-                                      )}{' '}
-                                      USDT/{chainCurrency[chainId]}
-                                    </div>
-                                  </div>
-                                ) : null}
-                              </>
-                            )}
-                          </>
-                        )}
+                        ) : null}
+                        {holdingInfo.holdUntilPriceInWETH ||
+                        holdingInfo.holdUntilPriceInUSD ? (
+                          <FinalizedToPriceBlock />
+                        ) : null}
                       </div>
+                    )}
 
-                      {holdingInfo.isActive &&
-                        withdrawalFee !== undefined &&
-                        isAbleToClaim && (
-                          <div className="result-info flex column">
-                            <div className="flex space-between">
-                              <div>Fee</div>
-                              <div className="fee-amount">
-                                {cutDecimals(withdrawalFee, 4)}{' '}
-                                {chainCurrency[chainId]}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                      {holdingInfo.isActive &&
-                        holdingInfo.user === address &&
-                        withdrawalFee !== undefined &&
-                        etherBalance && (
-                          <div className="form flex column">
-                            <div className="buttons flex">
-                              <button
-                                disabled={!isAbleToClaim}
-                                onClick={() => {
-                                  holdingInfo.isPureEther
-                                    ? callWithdrawHoldingEther()
-                                    : callWithdrawHoldingToken();
-                                }}
-                              >
-                                {isAbleToClaim
-                                  ? etherBalance >= withdrawalFee
-                                    ? 'Withdraw'
-                                    : 'Insufficient ETH balance'
-                                  : 'Waiting for target'}
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                    </>
-                  ) : (
-                    <div className="form flex column center">
-                      No holding found in {capitalizeFirstLetter(chainName)}{' '}
-                      network with id #{id}
+                    <div className="low-opacity flex end">
+                      Started at {formatDate(holdingInfo.holdAtTimestamp, true)}{' '}
+                      by {shortenAddress(holdingInfo.user)}
                     </div>
-                  )}
+                  </div>
+
+                  {holdingInfo.isActive &&
+                    holdingInfo.user === address &&
+                    withdrawalFee !== undefined &&
+                    isAbleToClaim && (
+                      <div className="result-info flex column">
+                        <div className="flex space-between">
+                          <div>Fee</div>
+                          <div className="fee-amount">
+                            {cutDecimals(withdrawalFee, 4)}{' '}
+                            {chainCurrency[chainId]}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  {holdingInfo.isActive &&
+                    holdingInfo.user === address &&
+                    withdrawalFee !== undefined &&
+                    etherBalance && (
+                      <div className="buttons flex">
+                        <button
+                          disabled={!isAbleToClaim}
+                          onClick={() => {
+                            holdingInfo.isPureEther
+                              ? callWithdrawHoldingEther()
+                              : callWithdrawHoldingToken();
+                          }}
+                        >
+                          {isAbleToClaim
+                            ? etherBalance >= withdrawalFee
+                              ? 'Withdraw'
+                              : 'Insufficient ETH balance'
+                            : 'Waiting for target'}
+                        </button>
+                      </div>
+                    )}
                 </>
               ) : (
-                <div className="unmatched network flex column center gapped">
-                  <div>Your wallet is connected to another network</div>
-                  <div>
-                    Please, switch network to {capitalizeFirstLetter(chainName)}
-                  </div>
-                  <button onClick={openNetworkSwitch}>Switch</button>
-                </div>
+                <>
+                  {isNoHoldings ? (
+                    <div className="empty flex column center gapped">
+                      <Image
+                        src={`/img/chains/${chainId}.svg`}
+                        width={80}
+                        height={80}
+                        alt=""
+                      />
+                      <div>
+                        No holding with id <span>#{id}</span> found in{' '}
+                        {capitalizeFirstLetter(chainName)} network
+                      </div>
+                    </div>
+                  ) : (
+                    <LoadingComponent />
+                  )}
+                </>
               )}
+            </>
+          ) : (
+            <div className="unmatched network flex column center gapped">
+              <Image src={`/img/chains/0.svg`} width={80} height={80} alt="" />
+              <div>Your wallet is connected to different network</div>
+              <div>
+                Please, switch network to{' '}
+                <b>{capitalizeFirstLetter(chainName)}</b>
+              </div>
+              <button className="mini" onClick={openNetworkSwitch}>
+                Switch
+              </button>
             </div>
           )}
-        </>
+        </div>
+      ) : (
+        <LoadingComponent />
       )}
     </>
   );

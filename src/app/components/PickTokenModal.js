@@ -149,7 +149,7 @@ export default function PickTokenModal({
                     alt=""
                   />
                   <input
-                    autofocus
+                    autoFocus
                     type="text"
                     autoComplete="off"
                     value={contractAddress}

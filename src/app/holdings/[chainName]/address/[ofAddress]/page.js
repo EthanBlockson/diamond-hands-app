@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 import {
@@ -18,6 +19,7 @@ import { USDT } from '@/data/USDT';
 import HoldingPreviewCard from '@/app/components/HoldingPreviewCard';
 import { getHoldingInfo } from '@/calls/getHoldingInfo';
 import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
+import { LoadingComponent } from '@/app/components/LoadingComponent';
 
 export default function HoldingsByAddress({ params }) {
   const { chainName, ofAddress } = params;
@@ -25,8 +27,7 @@ export default function HoldingsByAddress({ params }) {
   const { address, chainId } = useWeb3ModalAccount();
   const { open } = useWeb3Modal();
 
-  // const initialRender = useRef(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isNetworkMatch, setIsNetworkMatch] = useState(true);
   const [priceETHinUSD, setPriceETHinUSD] = useState(0);
   const [holdingsIds, setHoldingsIds] = useState(undefined);
@@ -36,28 +37,29 @@ export default function HoldingsByAddress({ params }) {
   const [isNoHoldings, setIsNoHoldings] = useState(false);
 
   useEffect(() => {
-    // if (initialRender.current) return;
-    // initialRender.current = true;
-
     clearAll();
+    setIsLoaded(false);
     if (address && chainId) {
-      setIsConnected(true);
       const chainIdFromLink = nameToChainId[chainName];
       chainIdFromLink !== chainId
         ? setIsNetworkMatch(false)
         : setIsNetworkMatch(true);
       callGetPriceETHinUSD();
       callGetHoldingsData();
-    } else {
-      setIsConnected(false);
     }
+    setIsLoaded(true);
   }, [address && chainId]);
 
   const callGetHoldingsData = async () => {
+    const chainIdFromLink = nameToChainId[chainName];
+    if (chainIdFromLink !== chainId) return;
+
     const fetchedHoldingIds = await callGetHoldingIds();
-    if (fetchedHoldingIds && fetchedHoldingIds.length === 0) {
+    if (!fetchedHoldingIds || fetchedHoldingIds.length === 0) {
       setIsNoHoldings(true);
+      return;
     }
+
     const fetchedHoldingIdsReversed = [...fetchedHoldingIds].reverse();
     setHoldingsIds(fetchedHoldingIdsReversed);
     console.log(fetchedHoldingIds);
@@ -125,75 +127,115 @@ export default function HoldingsByAddress({ params }) {
 
   return (
     <>
-      {!holdingsIds ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {isConnected && (
-            <div className="holding flex column center">
-              <h1>Holdings of {shortenAddress(ofAddress)}</h1>
-              {isValidEthereumAddress(ofAddress) ? (
-                <>
-                  {isNetworkMatch ? (
-                    <>
-                      {holdingsData &&
-                      holdingsData.length > 0 &&
-                      priceETHinUSD ? (
-                        <>
-                          <div className="preview-cards flex wrap start">
-                            {holdingsData.map((holdingData, id) => (
-                              <div
-                                className="preview-card flex column"
-                                key={id}
-                              >
-                                <Link
-                                  href={`/holdings/${chainIdToNameLowerCase[chainId]}/${holdingData.id}`}
-                                >
-                                  <HoldingPreviewCard
-                                    id={holdingData.id}
-                                    holdingData={holdingData}
-                                    priceETHinUSD={priceETHinUSD}
-                                  />
-                                </Link>
-                              </div>
-                            ))}
-                          </div>
-                          {!isPaginationEnd && (
-                            <button onClick={() => callGetHoldingsData()}>
-                              More
-                            </button>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          {isNoHoldings && (
-                            <div className="empty address flex column center">
-                              Address <p>{ofAddress}</p> doesnt have any
-                              holdings at {chainIdToName[chainId]} chain
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <div className="unmatched network flex column center gapped">
-                      <div>Your wallet is connected to another network</div>
-                      <div>
-                        Please, switch network to{' '}
-                        {capitalizeFirstLetter(chainName)}
+      {isLoaded ? (
+        <div className="holding flex column center">
+          <h1>
+            {address && address === ofAddress ? 'My Holdings' : 'Holdings'}
+          </h1>
+          {address && chainId ? (
+            isValidEthereumAddress(ofAddress) ? (
+              isNetworkMatch ? (
+                holdingsData && holdingsData.length > 0 && priceETHinUSD ? (
+                  <>
+                    {address !== ofAddress && (
+                      <div className="of-who low-opacity">
+                        of {shortenAddress(ofAddress)}
                       </div>
-                      <button onClick={openNetworkSwitch}>Switch</button>
+                    )}
+                    <div className="preview-cards flex wrap start">
+                      {holdingsData.map((holdingData, id) => (
+                        <div className="preview-card flex column" key={id}>
+                          <Link
+                            href={`/holdings/${chainIdToNameLowerCase[chainId]}/${holdingData.id}`}
+                          >
+                            <HoldingPreviewCard
+                              id={holdingData.id}
+                              holdingData={holdingData}
+                              priceETHinUSD={priceETHinUSD}
+                            />
+                          </Link>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </>
+                    {!isPaginationEnd && (
+                      <button
+                        className="mini"
+                        onClick={() => callGetHoldingsData()}
+                      >
+                        More
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {isNoHoldings ? (
+                      <div className="empty flex column center gapped">
+                        <Image
+                          src={`/img/chains/${chainId}.svg`}
+                          width={80}
+                          height={80}
+                          alt=""
+                        />
+                        <div>
+                          {address === ofAddress ? (
+                            'You'
+                          ) : (
+                            <>
+                              Address <span>{ofAddress}</span>
+                            </>
+                          )}{' '}
+                          dont have any holdings on {chainIdToName[chainId]}{' '}
+                          chain
+                        </div>
+                      </div>
+                    ) : (
+                      <LoadingComponent />
+                    )}
+                  </>
+                )
               ) : (
-                <div className="unmatched address flex column center gapped">
-                  <div>Address {ofAddress} doesnt exist</div>
+                <div className="unmatched network flex column center gapped">
+                  <Image
+                    src={`/img/chains/0.svg`}
+                    width={80}
+                    height={80}
+                    alt=""
+                  />
+                  <div>Your wallet is connected to different network</div>
+                  <div>
+                    Please, switch network to{' '}
+                    <b>{capitalizeFirstLetter(chainName)}</b>
+                  </div>
+                  <button className="mini" onClick={openNetworkSwitch}>
+                    Switch
+                  </button>
                 </div>
-              )}
+              )
+            ) : (
+              <div className="empty address flex column center gapped">
+                <Image
+                  src={`/img/chains/0.svg`}
+                  width={80}
+                  height={80}
+                  alt=""
+                />
+                <div>
+                  Address <span>{ofAddress}</span> doesnt exist
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="empty connection flex column center gapped">
+              <Image src={`/img/chains/0.svg`} width={80} height={80} alt="" />
+              <div>Your wallet isnt connected</div>
+              <button className="mini" onClick={openNetworkSwitch}>
+                Connect
+              </button>
             </div>
           )}
-        </>
+        </div>
+      ) : (
+        <LoadingComponent />
       )}
     </>
   );
