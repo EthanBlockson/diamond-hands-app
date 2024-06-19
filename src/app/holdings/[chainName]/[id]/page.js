@@ -1,5 +1,3 @@
-// TODO: You can DRY this components render flow as in ConfirmDepositModal.js
-
 'use client';
 
 import Link from 'next/link';
@@ -317,7 +315,15 @@ export default function HoldingsById({ params }) {
         {holdingInfo.isActive ? (
           <div className="progress flex column gapped">
             <div className="flex center text">
-              To date {formatDate(holdingInfo.holdUntilTimestamp, true)}
+              <div className="progress-header flex row center-baseline gapped-mini">
+                <Image
+                  src={`/img/icons/clock.svg`}
+                  width={17}
+                  height={17}
+                  alt=""
+                />
+                Until date {formatDate(holdingInfo.holdUntilTimestamp, true)}
+              </div>
             </div>
             <div className="progress-bar date">
               <div
@@ -338,9 +344,16 @@ export default function HoldingsById({ params }) {
       <>
         {holdingInfo.isActive ? (
           <div className="progress flex column gapped">
-            <div className="flex center text">
-              <div>
-                To price{' '}
+            <div className="flex space-between">
+              <div style={{ width: '17px' }}></div>
+              <div className="progress-header flex row center center-baseline gapped-mini">
+                <Image
+                  src={`/img/icons/chart.svg`}
+                  width={17}
+                  height={17}
+                  alt=""
+                />
+                Until price{' '}
                 {holdingInfo.isPureEther
                   ? cutDecimals(1 / holdingInfo.holdUntilPriceInWETH, 2)
                   : holdingInfo.holdUntilPriceInWETH
@@ -350,6 +363,39 @@ export default function HoldingsById({ params }) {
                   : null}{' '}
                 <TickerPair />
               </div>
+              <div className="tooltip">
+                <Image
+                  src={`/img/icons/info.svg`}
+                  width={21}
+                  height={21}
+                  alt=""
+                />
+                <div className="tooltiptext">
+                  <div className="flex column gapped-mini">
+                    <b>Current price</b>
+                    {holdingInfo.isPureEther
+                      ? cutDecimals(priceETHinUSD, 2)
+                      : holdingInfo.holdUntilPriceInWETH
+                      ? cutLongZeroNumber(priceTOKENinETH)
+                      : holdingInfo.holdUntilPriceInUSD
+                      ? cutLongZeroNumber(priceTOKENinETH * priceETHinUSD)
+                      : null}{' '}
+                    <TickerPair />
+                  </div>
+                  <br />
+                  <div className="flex column gapped-mini">
+                    <b>Started at</b>
+                    {holdingInfo.isPureEther
+                      ? cutDecimals(1 / holdingInfo.holdAtPriceInWETH, 2)
+                      : holdingInfo.holdUntilPriceInWETH
+                      ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH, true)
+                      : holdingInfo.holdUntilPriceInUSD
+                      ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD, true)
+                      : null}{' '}
+                    <TickerPair />
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="progress-bar price">
               <div
@@ -358,28 +404,6 @@ export default function HoldingsById({ params }) {
                   width: `${priceProgress ? priceProgress : 0}%`,
                 }}
               ></div>
-            </div>
-            <div>
-              Started at:{' '}
-              {holdingInfo.isPureEther
-                ? cutDecimals(1 / holdingInfo.holdAtPriceInWETH, 2)
-                : holdingInfo.holdUntilPriceInWETH
-                ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH, true)
-                : holdingInfo.holdUntilPriceInUSD
-                ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD, true)
-                : null}{' '}
-              <TickerPair />
-            </div>
-            <div>
-              Current price: {''}
-              {holdingInfo.isPureEther
-                ? cutDecimals(priceETHinUSD, 2)
-                : holdingInfo.holdUntilPriceInWETH
-                ? cutLongZeroNumber(priceTOKENinETH)
-                : holdingInfo.holdUntilPriceInUSD
-                ? cutLongZeroNumber(priceTOKENinETH * priceETHinUSD)
-                : null}{' '}
-              <TickerPair />
             </div>
           </div>
         ) : null}
@@ -526,7 +550,7 @@ export default function HoldingsById({ params }) {
                       </div>
                     )}
 
-                    <div className="low-opacity flex end">
+                    <div className="low-opacity micro-text flex center">
                       Started at {formatDate(holdingInfo.holdAtTimestamp, true)}{' '}
                       by {shortenAddress(holdingInfo.user)}
                     </div>

@@ -125,7 +125,7 @@ export default function ConfirmDepositModal({
       <div className="target flex gapped">
         <div>
           <div className="token-amount">{formatDate(unfreezeDate)}</div>
-          <div>{freezeForDays} days</div>
+          <div className="token-date-under">{freezeForDays} days</div>
         </div>
       </div>
     );
@@ -150,7 +150,7 @@ export default function ConfirmDepositModal({
             {isEther ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
             {isEther ? 'ETH' : tokenSymbol}
           </div>
-          <div>{freezeForX}x</div>
+          <div className="token-x-under">{freezeForX}x</div>
         </div>
       </div>
     );
@@ -183,7 +183,7 @@ export default function ConfirmDepositModal({
                     <div className="token-amount">
                       {cutDecimals(amount, 2)} {tokenSymbol}
                     </div>
-                    <div className="token-symbol">
+                    <div className="token-price-under">
                       ${cutLongZeroNumber(amountUSDT)}
                     </div>
                   </div>

@@ -126,10 +126,18 @@
 
     .token-amount {
       font-size: 35px;
+      font-family: sans-serif;
 
       > :first-child {
         margin-right: 10px;
       }
+    }
+
+    .token-price-under,
+    .token-x-under,
+    .token-date-under {
+      margin-top: 3px;
+      color: $dark-gray;
     }
   }
 

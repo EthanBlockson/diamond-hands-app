@@ -1,5 +1,6 @@
 import '../app/scss/styles.scss';
 import Header from './header';
+import Footer from './footer';
 import { Web3Modal } from '../context/web3modal';
 import { Toaster } from 'react-hot-toast';
 
@@ -12,7 +13,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex column">
         <Web3Modal>
           <Toaster
             toastOptions={{
@@ -23,11 +24,11 @@ export default function RootLayout({ children }) {
                 zIndex: 9999,
                 background: '#fff',
                 color: '#333',
-                // boxShadow: 'none',
+                boxShadow: 'none',
               },
               error: {
                 style: {
-                  backgroundColor: 'red',
+                  backgroundColor: '#222',
                   color: '#fff',
                 },
               },
@@ -39,6 +40,7 @@ export default function RootLayout({ children }) {
           />
           <Header />
           {children}
+          <Footer />
         </Web3Modal>
       </body>
     </html>

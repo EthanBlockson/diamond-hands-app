@@ -9,14 +9,20 @@
   > a {
     color: $dark-gray;
     padding: 9px 14px 9px 14px;
+
     &:hover {
       background: $light-gray;
       border-radius: 12px;
     }
+
     &.active {
       color: $black;
     }
   }
+}
+
+.menu-mobile {
+  display: none;
 }
 
 button {
@@ -54,5 +60,11 @@ button {
   &.connect {
     color: $diamond;
     border-radius: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .menu {
+    display: none;
   }
 }
