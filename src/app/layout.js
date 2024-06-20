@@ -5,8 +5,9 @@ import { Web3Modal } from '../context/web3modal';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata = {
-  title: 'Diamond Hands',
-  description: 'Hold your coins as you planned. Never break your targets.',
+  title: 'Diamond Hands ◆ Hold crypto tokens for sure',
+  description:
+    'Hold your coins as you planned. Never break your targets. Freeze them to exact date or X price growth in ETH or USD.',
   // https://nextjs.org/docs/app/building-your-application/optimizing/metadata
 };
 
@@ -17,13 +18,13 @@ export default function RootLayout({ children }) {
         <Web3Modal>
           <Toaster
             toastOptions={{
-              duration: 7000,
-              position: 'bottom-center',
+              duration: 5000,
+              position: 'top-center',
               icon: false,
               style: {
                 zIndex: 9999,
-                background: '#fff',
-                color: '#333',
+                background: '#40e0d0',
+                color: '#fff',
                 boxShadow: 'none',
               },
               error: {

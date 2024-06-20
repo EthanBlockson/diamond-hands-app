@@ -13,6 +13,7 @@ import cutDecimals from '@/utils/cutDecimals';
 import { chainIdToName } from '@/utils/chainIdToName';
 import toast from 'react-hot-toast';
 import { LoadingComponent } from '../components/LoadingComponent';
+import WaitingTxModal from '@/app/components/WaitingTxModal';
 
 export default function Earn() {
   const { open } = useWeb3Modal();
@@ -26,12 +27,15 @@ export default function Earn() {
   const [totalInvited, setTotalInvited] = useState(undefined);
   const [totalProfit, setTotalProfit] = useState(undefined);
 
+  const hintText = 'Confirm refcode creation';
+
+  const [isWaitingTxModalVisible, setIsWaitingTxModalVisible] = useState(false);
+
   useEffect(() => {
+    clearAll();
     setIsLoaded(false);
     if (address && chainId) {
       callGetRefs();
-    } else {
-      clearAll();
     }
     setIsLoaded(true);
   }, [address, chainId]);
@@ -48,6 +52,7 @@ export default function Earn() {
   };
 
   const callCreateMyRefCode = async () => {
+    handleShowWaitingTxModal(true);
     const creation = await createMyRefCode(
       chainId,
       walletProvider,
@@ -62,6 +67,7 @@ export default function Earn() {
         toast.error('Refcode creation returned error');
       }
     }
+    handleShowWaitingTxModal(false);
   };
 
   const handleInputRefcode = (event) => {
@@ -88,9 +94,24 @@ export default function Earn() {
     setTotalProfit(undefined);
   };
 
+  const handleShowWaitingTxModal = (boolean) => {
+    setIsWaitingTxModalVisible(boolean);
+  };
+
+  const modals = [
+    null,
+    <WaitingTxModal
+      key="default"
+      isWaitingTxModalVisible={isWaitingTxModalVisible}
+      handleShowWaitingTxModal={handleShowWaitingTxModal}
+      hintText={hintText}
+    />,
+  ];
+
   return (
     <>
-      {isLoaded ? (
+      {isWaitingTxModalVisible && <>{modals[1]}</>}
+      {isLoaded && myCode !== undefined ? (
         <div className="earn flex column center">
           <h1>Earn with referrals</h1>
           <div className="details flex column center">
@@ -100,7 +121,7 @@ export default function Earn() {
               height={140}
               alt=""
             />
-            <div className="flex column center gapped-mini">
+            <div className="about flex column center text gapped-mini">
               <div>
                 Get <b>30% share</b> of each deposit or withdrawal fees{' '}
                 <u>forever</u>
@@ -118,35 +139,7 @@ export default function Earn() {
             </div>
           ) : (
             <>
-              {myCode ? (
-                <>
-                  <div
-                    className="form flex column"
-                    onClick={() => handleBufferCopied(myCode)}
-                  >
-                    <div>My referral link</div>
-                    <div className="copy-refcode flex row gapped">
-                      <input
-                        className="link"
-                        type="text"
-                        value={`diamond-hands.app/invite/${myCode}`}
-                        readOnly
-                      />
-                      <button className="mini">Copy</button>
-                    </div>
-                  </div>
-                  <div className="form flex column center">
-                    <div>Total referrals ({chainIdToName[chainId]} chain)</div>
-                    <div className="earned-ether flex">{totalInvited}</div>
-                  </div>
-                  <div className="form flex column center">
-                    <div>Total earnings ({chainIdToName[chainId]} chain)</div>
-                    <div className="earned-ether flex">
-                      {cutDecimals(totalProfit)} ETH
-                    </div>
-                  </div>
-                </>
-              ) : (
+              {myCode === null ? (
                 <>
                   <div className="form flex column">
                     <div>Create your refcode to start inviting</div>
@@ -171,6 +164,36 @@ export default function Earn() {
                     {isWrongCode && (
                       <div>*Only latin letters and numbers is allowed</div>
                     )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div
+                    className="form flex column"
+                    onClick={() => handleBufferCopied(myCode)}
+                  >
+                    <div>My referral link</div>
+                    <div className="copy-refcode flex row gapped">
+                      <input
+                        className="link"
+                        type="text"
+                        value={`diamond-hands.app/invite/${myCode}`}
+                        readOnly
+                      />
+                      <button className="mini">Copy</button>
+                    </div>
+                  </div>
+                  <div className="form flex column center">
+                    <div>Total referrals ({chainIdToName[chainId]} chain)</div>
+                    <div className="earned-ether flex center text">
+                      {totalInvited}
+                    </div>
+                  </div>
+                  <div className="form flex column center">
+                    <div>Total earnings ({chainIdToName[chainId]} chain)</div>
+                    <div className="earned-ether flex center text">
+                      {cutDecimals(totalProfit)} ETH
+                    </div>
                   </div>
                 </>
               )}

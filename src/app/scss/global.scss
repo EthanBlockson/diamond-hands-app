@@ -10,7 +10,7 @@
 
 body {
   background: white;
-  font-family: Inter;
+  font-family: Inter, sans-serif, Arial;
   min-height: 100vh;
 }
 
@@ -93,6 +93,15 @@ button {
     padding: 4px 11px;
     border-radius: 15px;
     color: $diamond;
+
+    &:disabled {
+      background: $medium-gray;
+      color: $dark-gray;
+    }
+
+    &:active {
+      background: $diamond-light;
+    }
   }
 
   &.large {
@@ -201,7 +210,7 @@ button {
     visibility: hidden;
     min-width: 120px;
     max-width: fit-content;
-    background-color: $black;
+    background: $black;
     color: #fff;
     text-align: center;
     border-radius: 8px;
@@ -215,6 +224,12 @@ button {
   &:active .tooltiptext {
     visibility: visible;
     opacity: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tooltiptext {
+    right: 0;
   }
 }
 

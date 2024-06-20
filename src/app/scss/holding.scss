@@ -209,3 +209,32 @@
     color: $dark-gray;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .holding {
+    margin-bottom: 100px;
+
+    .unmatched,
+    .empty {
+      width: 90%;
+    }
+
+    .preview-cards {
+      margin-top: 0;
+      margin-bottom: 35px;
+      width: 96%;
+      gap: 25px;
+
+      .preview-card {
+        flex: 0 1 100%;
+        max-width: 100%;
+      }
+    }
+
+    .form,
+    .result-info,
+    .buttons {
+      width: 96%;
+    }
+  }
+}

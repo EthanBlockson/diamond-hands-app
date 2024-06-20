@@ -21,7 +21,10 @@ export const getRefs = async (chainId, walletProvider, userAddress) => {
     const contract = new Contract(contractAddress, ABI, signer);
 
     const refcodeBytes32 = await contract.getRefCodeByAddress(userAddress);
-    const refcodeString = ethers.utils.parseBytes32String(refcodeBytes32);
+    const refcodeString =
+      refcodeBytes32 === ethers.constants.HashZero
+        ? null
+        : ethers.utils.parseBytes32String(refcodeBytes32);
 
     const totalRefs = await contract.getTotalRefs(userAddress);
 

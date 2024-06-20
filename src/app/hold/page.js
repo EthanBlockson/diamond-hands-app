@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useScreenWidth } from '../hooks/useScreenWidth';
 import {
   useWeb3Modal,
   useWeb3ModalProvider,
@@ -24,6 +25,7 @@ import ConfirmDepositModal from '../components/ConfirmDepositModal';
 import { LoadingComponent } from '../components/LoadingComponent';
 
 export default function Hold() {
+  const screenWidth = useScreenWidth();
   const { open } = useWeb3Modal();
   const { walletProvider } = useWeb3ModalProvider();
   const { address, chainId } = useWeb3ModalAccount();
@@ -261,7 +263,7 @@ export default function Hold() {
                 height={17}
                 alt=""
               />
-              Until price
+              {screenWidth <= 768 ? 'Price' : 'Until price'}
             </button>
             <button
               className={`deposit-tab flex center-baseline ${
@@ -275,7 +277,7 @@ export default function Hold() {
                 height={17}
                 alt=""
               />
-              Until date
+              {screenWidth <= 768 ? 'Date' : 'Until date'}
             </button>
             <button
               className={`deposit-tab flex center-baseline ${
@@ -295,7 +297,7 @@ export default function Hold() {
                 height={17}
                 alt=""
               />
-              Until date or price
+              {screenWidth <= 768 ? 'Date or price' : 'Until date or price'}
             </button>
           </div>
           <div className="form flex column">
@@ -306,6 +308,7 @@ export default function Hold() {
                   <input
                     className="amount"
                     type="number"
+                    inputMode="numeric"
                     min="0"
                     autoComplete="off"
                     placeholder="0"
@@ -334,14 +337,9 @@ export default function Hold() {
                 </div>
               </div>
             </div>
-            <div className="flex space-between">
+            <div className="usd-price flex space-between">
               {amountUSDT > 0 ? (
-                <div>
-                  $
-                  {amountUSDT < 0.0001
-                    ? cutLongZeroNumber(amountUSDT)
-                    : cutDecimals(amountUSDT, 2)}
-                </div>
+                <div>${cutLongZeroNumber(amountUSDT)}</div>
               ) : (
                 <div></div>
               )}
@@ -394,6 +392,7 @@ export default function Hold() {
                   <input
                     className="white-input"
                     type="number"
+                    inputMode="numeric"
                     autoComplete="off"
                     placeholder="12"
                     value={freezeForDays}
@@ -487,6 +486,7 @@ export default function Hold() {
                   <input
                     className="white-input flex end"
                     type="number"
+                    inputMode="numeric"
                     autoComplete="off"
                     placeholder="100"
                     value={freezeForX}

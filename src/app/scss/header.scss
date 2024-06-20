@@ -64,6 +64,21 @@ button {
 }
 
 @media screen and (max-width: 768px) {
+  .header {
+    padding: 20px 10px 10px 10px;
+    margin-bottom: 20px;
+
+    .right {
+      gap: 20px;
+
+      .chain-selector,
+      .wallet {
+        padding: 0;
+        margin-right: 0;
+      }
+    }
+  }
+
   .menu {
     display: none;
   }

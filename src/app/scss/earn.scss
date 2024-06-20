@@ -3,7 +3,7 @@
 
   .details {
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 
     img {
       margin-bottom: 20px;
@@ -33,5 +33,19 @@
     font-size: 50px;
     font-weight: bold;
     color: $black;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .earn {
+    margin-bottom: 100px;
+
+    .about {
+      width: 70%;
+    }
+
+    .form {
+      width: 96%;
+    }
   }
 }

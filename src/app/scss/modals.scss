@@ -157,3 +157,13 @@
     margin-bottom: 50px;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .any-modal {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}

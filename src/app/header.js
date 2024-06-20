@@ -34,7 +34,7 @@ export default function Header() {
       <div className="left flex row center-baseline gapped">
         <Link className="logo" href="/">
           <Image
-            src={`/img/brand/logo-long6.png`}
+            src={`/img/brand/logo-long.png`}
             width={135}
             height={36}
             alt=""

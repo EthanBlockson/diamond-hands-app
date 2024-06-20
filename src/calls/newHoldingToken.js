@@ -55,15 +55,15 @@ export const newHoldingToken = async (
     const signer = ethersProvider.getSigner();
     const contract = new Contract(contractAddress, ABI, signer);
 
-    console.log([
-      tokenAddress,
-      freezeAmountInWei,
-      freezeForSeconds,
-      freezeForXFormatted,
-      isPriceGrowthGoalInUSD,
-      refcodeChecked,
-      { value: payableAmountInWei },
-    ]); // TEMP
+    // console.log([
+    //   tokenAddress,
+    //   freezeAmountInWei,
+    //   freezeForSeconds,
+    //   freezeForXFormatted,
+    //   isPriceGrowthGoalInUSD,
+    //   refcodeChecked,
+    //   { value: payableAmountInWei },
+    // ]); // TEMP
 
     const tx = await contract.newHoldingToken(
       tokenAddress,

@@ -125,3 +125,14 @@
     }
   }
 }
+
+@media screen and (max-width: 768px) {
+  .hold {
+    .holding-types,
+    .form,
+    .buttons,
+    .result-info {
+      width: 96%;
+    }
+  }
+}

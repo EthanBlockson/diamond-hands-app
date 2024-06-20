@@ -62,29 +62,21 @@ export default function HoldingsByAddress({ params }) {
 
     const fetchedHoldingIdsReversed = [...fetchedHoldingIds].reverse();
     setHoldingsIds(fetchedHoldingIdsReversed);
-    console.log(fetchedHoldingIds);
-    console.log(fetchedHoldingIdsReversed);
 
     const step = 6;
     const cursor = currentCursor ? currentCursor : 0;
     const ids = fetchedHoldingIdsReversed.slice(cursor, cursor + step);
-    console.log('ids length', ids.length);
     setCurrentCursor(cursor + step);
-
-    console.log('cursor', cursor);
-    console.log('ids', ids);
 
     const holdingInfoPromises = ids.map(async (id) => {
       const holdingInfo = await getHoldingInfo(chainId, walletProvider, id);
       return { id, ...holdingInfo };
     });
     const holdingInfoArray = await Promise.all(holdingInfoPromises);
-    console.log('holdingInfoArray', holdingInfoArray);
     setHoldingsData((prevHoldingsData) => [
       ...prevHoldingsData,
       ...holdingInfoArray,
     ]);
-    console.log('prevHoldingsData', holdingsData);
 
     holdingsData.length + holdingInfoArray.length >= fetchedHoldingIds.length &&
       setIsPaginationEnd(true);
@@ -100,7 +92,6 @@ export default function HoldingsByAddress({ params }) {
   };
 
   const callGetPriceETHinUSD = async () => {
-    console.log('callGetPriceETHinUSD');
     const dollarToEtherPrice = await getTokenPriceV2(
       chainId,
       walletProvider,
@@ -169,7 +160,7 @@ export default function HoldingsByAddress({ params }) {
                 ) : (
                   <>
                     {isNoHoldings ? (
-                      <div className="empty flex column center gapped">
+                      <div className="empty flex column center text gapped">
                         <Image
                           src={`/img/chains/${chainId}.svg`}
                           width={80}
@@ -194,7 +185,7 @@ export default function HoldingsByAddress({ params }) {
                   </>
                 )
               ) : (
-                <div className="unmatched network flex column center gapped">
+                <div className="unmatched network flex column center text gapped">
                   <Image
                     src={`/img/chains/0.svg`}
                     width={80}
@@ -212,7 +203,7 @@ export default function HoldingsByAddress({ params }) {
                 </div>
               )
             ) : (
-              <div className="empty address flex column center gapped">
+              <div className="empty address flex column center text gapped">
                 <Image
                   src={`/img/chains/0.svg`}
                   width={80}
@@ -225,7 +216,7 @@ export default function HoldingsByAddress({ params }) {
               </div>
             )
           ) : (
-            <div className="empty connection flex column center gapped">
+            <div className="empty connection flex column center text gapped">
               <Image src={`/img/chains/0.svg`} width={80} height={80} alt="" />
               <div>Your wallet isnt connected</div>
               <button className="mini" onClick={openNetworkSwitch}>

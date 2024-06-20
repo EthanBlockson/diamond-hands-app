@@ -27,6 +27,7 @@ import { withdrawHoldingEther } from '@/calls/withdrawHoldingEther';
 import toast from 'react-hot-toast';
 import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
 import { LoadingComponent } from '@/app/components/LoadingComponent';
+import WaitingTxModal from '@/app/components/WaitingTxModal';
 
 export default function HoldingsById({ params }) {
   const { chainName, id } = params;
@@ -51,6 +52,9 @@ export default function HoldingsById({ params }) {
 
   const zeroAddress = '0x0000000000000000000000000000000000000000';
   const currentTimestamp = Math.floor(Date.now() / 1000);
+  const hintText = 'Confirm withdrawal';
+
+  const [isWaitingTxModalVisible, setIsWaitingTxModalVisible] = useState(false);
 
   useEffect(() => {
     setIsLoaded(false);
@@ -278,6 +282,7 @@ export default function HoldingsById({ params }) {
   };
 
   const callWithdrawHoldingToken = async () => {
+    handleShowWaitingTxModal(true);
     const tx = await withdrawHoldingToken(
       chainId,
       walletProvider,
@@ -291,6 +296,7 @@ export default function HoldingsById({ params }) {
     } else {
       toast.error('Error trying to withdraw tokens from holding');
     }
+    handleShowWaitingTxModal(false);
   };
 
   const openNetworkSwitch = () => {
@@ -446,8 +452,23 @@ export default function HoldingsById({ params }) {
     );
   };
 
+  const handleShowWaitingTxModal = (boolean) => {
+    setIsWaitingTxModalVisible(boolean);
+  };
+
+  const modals = [
+    null,
+    <WaitingTxModal
+      key="default"
+      isWaitingTxModalVisible={isWaitingTxModalVisible}
+      handleShowWaitingTxModal={handleShowWaitingTxModal}
+      hintText={hintText}
+    />,
+  ];
+
   return (
     <>
+      {isWaitingTxModalVisible && <>{modals[1]}</>}
       {isLoaded ? (
         <div className="holding flex column center">
           <h1>Holdings explorer</h1>
@@ -596,7 +617,7 @@ export default function HoldingsById({ params }) {
               ) : (
                 <>
                   {isNoHoldings ? (
-                    <div className="empty flex column center gapped">
+                    <div className="empty flex column center text gapped">
                       <Image
                         src={`/img/chains/${chainId}.svg`}
                         width={80}
@@ -615,7 +636,7 @@ export default function HoldingsById({ params }) {
               )}
             </>
           ) : (
-            <div className="unmatched network flex column center gapped">
+            <div className="unmatched network flex column center text gapped">
               <Image src={`/img/chains/0.svg`} width={80} height={80} alt="" />
               <div>Your wallet is connected to different network</div>
               <div>
