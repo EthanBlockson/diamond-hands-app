@@ -16,7 +16,7 @@ export default function SocialMediaLinks({ size, isDesktop }) {
         <Image src={`/img/icons/x.svg`} width={size} height={size} alt="" />
       </Link>
       <Link
-        href="https://discord.com/users/DiamondHandsApp"
+        href="https://discord.com/users/diamond_hands_app"
         target="_blank"
         rel="nofollow noopener noreferrer"
       >
@@ -28,7 +28,7 @@ export default function SocialMediaLinks({ size, isDesktop }) {
         />
       </Link>
       <Link
-        href="https://t.me/DiamondHandsApp"
+        href="https://t.me/diamond_hands_app"
         target="_blank"
         rel="nofollow noopener noreferrer"
       >
