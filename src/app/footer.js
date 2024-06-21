@@ -28,7 +28,7 @@ export default function Footer() {
         <div className="credits flex column end gapped">
           <div
             className="status"
-            style={{ backgroundColor: address ? '#40e0d0' : '#7d7d7d' }}
+            style={{ backgroundColor: isConnected ? '#40e0d0' : '#7d7d7d' }}
           ></div>
           <div>v1.0</div>
         </div>
