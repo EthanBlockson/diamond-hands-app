@@ -10,7 +10,7 @@ export default function Home() {
     <div className="landing">
       <div className="hero flex column end">
         <div className="flex column gapped-mini">
-          <h1>Hold crypto coins for sure</h1>
+          <h1>Hold crypto coins in stone</h1>
           <div className="info">Literally freeze it with no way out</div>
         </div>
         <div className="hero-buttons flex row gapped">

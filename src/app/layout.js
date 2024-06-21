@@ -5,7 +5,7 @@ import { Web3Modal } from '../context/web3modal';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata = {
-  title: 'Diamond Hands ◆ Hold crypto tokens for sure',
+  title: 'Diamond Hands ◆ Hold crypto tokens in stone',
   description:
     'Hold your coins as you planned. Never break your targets. Freeze them to exact date or X price growth in ETH or USD.',
   // https://nextjs.org/docs/app/building-your-application/optimizing/metadata
