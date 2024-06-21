@@ -19,6 +19,9 @@ import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
 import cutDecimals from '@/utils/cutDecimals';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { USD } from '@/data/USD';
+import { symbolUSD } from '@/utils/symbolUSD';
+import { decimalsUSD } from '@/utils/decimalsUSD';
+import { chainCurrency } from '@/utils/chainCurrency';
 import { chainCurrency } from '@/utils/chainCurrency';
 import { getServiceFee } from '@/calls/getServiceFee';
 import { getEtherBalance } from '@/calls/getEtherBalance';
@@ -218,7 +221,7 @@ export default function HoldingsById({ params }) {
       chainId,
       walletProvider,
       USD[chainId],
-      6, // USD decimals
+      decimalsUSD[chainId],
       1, // 1 USD
       true,
     );
@@ -305,13 +308,15 @@ export default function HoldingsById({ params }) {
 
   const TickerPair = () => {
     return holdingInfo.isPureEther
-      ? `USD/${chainCurrency[chainId]}`
+      ? `${symbolUSD[chainId]}/${chainCurrency[chainId]}`
       : holdingInfo.holdUntilPriceInWETH
       ? `${chainCurrency[chainId]}/${
           holdingTokenData?.symbol ? holdingTokenData.symbol : '...'
         }`
       : holdingInfo.holdUntilPriceInUSD
-      ? `USD/${holdingTokenData?.symbol ? holdingTokenData.symbol : '...'}`
+      ? `${symbolUSD[chainId]}/${
+          holdingTokenData?.symbol ? holdingTokenData.symbol : '...'
+        }`
       : null;
   };
 
@@ -608,7 +613,7 @@ export default function HoldingsById({ params }) {
                           {isAbleToClaim
                             ? etherBalance >= withdrawalFee
                               ? 'Withdraw'
-                              : 'Insufficient ETH balance'
+                              : `Insufficient ${chainCurrency[chainId]} balance`
                             : 'Waiting for target'}
                         </button>
                       </div>

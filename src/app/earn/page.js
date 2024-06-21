@@ -11,6 +11,7 @@ import { createMyRefCode } from '@/calls/createMyRefCode';
 import { getRefs } from '@/calls/getRefs';
 import cutDecimals from '@/utils/cutDecimals';
 import { chainIdToName } from '@/utils/chainIdToName';
+import { chainCurrency } from '@/utils/chainCurrency';
 import toast from 'react-hot-toast';
 import { LoadingComponent } from '../components/LoadingComponent';
 import WaitingTxModal from '@/app/components/WaitingTxModal';
@@ -192,7 +193,7 @@ export default function Earn() {
                   <div className="form flex column center">
                     <div>Total earnings ({chainIdToName[chainId]} chain)</div>
                     <div className="earned-ether flex center text">
-                      {cutDecimals(totalProfit)} ETH
+                      {cutDecimals(totalProfit)} {chainCurrency[chainId]}
                     </div>
                   </div>
                 </>

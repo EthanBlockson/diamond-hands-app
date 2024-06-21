@@ -1,6 +1,7 @@
 import { ethers, Contract } from 'ethers';
 import { contracts } from '../../contracts';
 import { bigNumberTokensToNumber } from '@/utils/bigNumberTokensToNumber';
+import { decimalsUSD } from '@/utils/decimalsUSD';
 
 export const getHoldingInfo = async (chainId, walletProvider, _id) => {
   if (!chainId || !walletProvider || !_id) {
@@ -29,8 +30,14 @@ export const getHoldingInfo = async (chainId, walletProvider, _id) => {
       holdUntilTimestamp: holdingInfo[4].toNumber(),
       holdAtPriceInWETH: bigNumberTokensToNumber(holdingInfo[5], 18),
       holdUntilPriceInWETH: bigNumberTokensToNumber(holdingInfo[6], 18),
-      holdAtPriceInUSD: bigNumberTokensToNumber(holdingInfo[7], 6),
-      holdUntilPriceInUSD: bigNumberTokensToNumber(holdingInfo[8], 6),
+      holdAtPriceInUSD: bigNumberTokensToNumber(
+        holdingInfo[7],
+        decimalsUSD[chainId],
+      ),
+      holdUntilPriceInUSD: bigNumberTokensToNumber(
+        holdingInfo[8],
+        decimalsUSD[chainId],
+      ),
       token: holdingInfo[9],
       user: holdingInfo[10],
     };

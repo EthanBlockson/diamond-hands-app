@@ -16,6 +16,7 @@ import { getHoldingIds } from '@/calls/getHoldingIds';
 import { chainIdToName } from '@/utils/chainIdToName';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { USD } from '@/data/USD';
+import { decimalsUSD } from '@/utils/decimalsUSD';
 import HoldingPreviewCard from '@/app/components/HoldingPreviewCard';
 import { getHoldingInfo } from '@/calls/getHoldingInfo';
 import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
@@ -96,7 +97,7 @@ export default function HoldingsByAddress({ params }) {
       chainId,
       walletProvider,
       USD[chainId],
-      6, // USD decimals
+      decimalsUSD[chainId],
       1, // 1 USD
       true,
     );

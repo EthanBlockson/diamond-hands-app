@@ -16,6 +16,8 @@ import { getServiceFee } from '@/calls/getServiceFee';
 import { newHoldingEther } from '@/calls/newHoldingEther';
 import { newHoldingToken } from '@/calls/newHoldingToken';
 import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
+import { symbolUSD } from '@/utils/symbolUSD';
+import { chainCurrency } from '@/utils/chainCurrency';
 import { LoadingIndicator } from './LoadingIndicator';
 import toast from 'react-hot-toast';
 
@@ -47,7 +49,7 @@ export default function ConfirmDepositModal({
 
   const [serviceFee, setServiceFee] = useState();
   const [isWaitingForTx, setIsWaitingForTx] = useState(false);
-  const isEther = tokenName === 'ETH';
+  const isEther = tokenName === chainCurrency[chainId];
 
   useEffect(() => {
     callGetServiceFee();
@@ -147,8 +149,12 @@ export default function ConfirmDepositModal({
                   : cutLongZeroNumber(priceTOKENinETH * freezeForX)}
               </div>
             )}
-            {isEther ? 'USD' : isInUSD ? 'USD' : 'ETH'}/
-            {isEther ? 'ETH' : tokenSymbol}
+            {isEther
+              ? symbolUSD[chainId]
+              : isInUSD
+              ? symbolUSD[chainId]
+              : chainCurrency[chainId]}
+            /{isEther ? chainCurrency[chainId] : tokenSymbol}
           </div>
           <div className="token-x-under">{freezeForX}x</div>
         </div>

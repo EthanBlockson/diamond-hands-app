@@ -17,12 +17,14 @@ import { USD } from '@/data/USD';
 import cutDecimals from '@/utils/cutDecimals';
 import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
 import PickTokenModal from '../components/PickTokenModal';
+import { symbolUSD } from '@/utils/symbolUSD';
 import { formatDate } from '@/utils/formatDate';
 import addDaysToDate from '@/utils/addDaysToDate';
 import { fees } from '../../../fees';
 import { chainCurrency } from '@/utils/chainCurrency';
 import ConfirmDepositModal from '../components/ConfirmDepositModal';
 import { LoadingComponent } from '../components/LoadingComponent';
+import { decimalsUSD } from '@/utils/decimalsUSD';
 
 export default function Hold() {
   const screenWidth = useScreenWidth();
@@ -86,7 +88,7 @@ export default function Hold() {
       chainId,
       walletProvider,
       USD[chainId],
-      6, // USD decimals
+      decimalsUSD[chainId],
       1, // 1 USD
       true,
     );
@@ -420,7 +422,7 @@ export default function Hold() {
                   <div className="flex row gapped-mini center-baseline">
                     <div>
                       Hold until {freezeForX ? freezeForX : '?'}X in{' '}
-                      {isInUSD ? 'USD' : 'ETH'}
+                      {isInUSD ? symbolUSD[chainId] : chainCurrency[chainId]}
                     </div>
                     {tokenName !== 'ETH' &&
                       priceTOKENinETH * priceETHinUSD > 0.000001 && (
@@ -428,7 +430,11 @@ export default function Hold() {
                           className="mini"
                           onClick={() => setIsInUSD(!isInUSD)}
                         >
-                          in {isInUSD ? 'ETH' : 'USD'}?
+                          in{' '}
+                          {isInUSD
+                            ? chainCurrency[chainId]
+                            : symbolUSD[chainId]}
+                          ?
                         </button>
                       )}
                   </div>
@@ -466,8 +472,15 @@ export default function Hold() {
                         </>
                       )}
                       &nbsp;
-                      {tokenName === 'ETH' ? 'USD' : isInUSD ? 'USD' : 'ETH'}/
-                      {tokenName === 'ETH' ? 'ETH' : tokenSymbol}
+                      {tokenName === 'ETH'
+                        ? symbolUSD[chainId]
+                        : isInUSD
+                        ? symbolUSD[chainId]
+                        : chainCurrency[chainId]}
+                      /
+                      {tokenName === 'ETH'
+                        ? chainCurrency[chainId]
+                        : tokenSymbol}
                     </div>
                     <div>
                       {freezeForX === limitX && (

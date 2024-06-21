@@ -13,6 +13,7 @@ import { percentDifference } from '@/utils/percentDifference';
 import { getERC20 } from '@/calls/getERC20';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { chainCurrency } from '@/utils/chainCurrency';
+import { symbolUSD } from '@/utils/symbolUSD';
 import { LoadingIndicator } from './LoadingIndicator';
 
 export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
@@ -198,7 +199,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                               1 / holdingData.holdUntilPriceInWETH,
                               2,
                             )}{' '}
-                            USD/{chainCurrency[chainId]}
+                            {symbolUSD[chainId]}/{chainCurrency[chainId]}
                           </div>
                         ) : null}
                         {holdingData.token !== zeroAddress &&
@@ -218,7 +219,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                               holdingData.holdUntilPriceInUSD,
                               true,
                             )}{' '}
-                            USD/{holdingTokenData.symbol}
+                            {symbolUSD[chainId]}/{holdingTokenData.symbol}
                           </div>
                         ) : null}
                       </div>
@@ -273,10 +274,10 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                   {holdingData.isPureEther &&
                   holdingData.holdUntilPriceInWETH ? (
                     <div>
-                      {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)} USD/
+                      {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)} {symbolUSD[chainId]}/
                       {chainCurrency[chainId]} to{' '}
                       {cutDecimals(1 / holdingData.holdUntilPriceInWETH, 2)}{' '}
-                      USD/{chainCurrency[chainId]}
+                      {symbolUSD[chainId]}/{chainCurrency[chainId]}
                     </div>
                   ) : null}
                   {holdingData.token !== zeroAddress &&
@@ -294,10 +295,10 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                   {holdingData.token !== zeroAddress &&
                   holdingData.holdUntilPriceInUSD ? (
                     <div>
-                      {cutLongZeroNumber(holdingData.holdAtPriceInUSD)} USD/
+                      {cutLongZeroNumber(holdingData.holdAtPriceInUSD)} {symbolUSD[chainId]}/
                       {holdingTokenData?.symbol} to{' '}
                       {cutLongZeroNumber(holdingData.holdUntilPriceInUSD, true)}{' '}
-                      USD/{holdingTokenData.symbol}
+                      {symbolUSD[chainId]}/{holdingTokenData.symbol}
                     </div>
                   ) : null}
                 </div>
@@ -323,12 +324,12 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                         holdingData.holdUntilPriceInWETH ? (
                           <div>
                             {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)}{' '}
-                            USD/{chainCurrency[chainId]} to{' '}
+                            {symbolUSD[chainId]}/{chainCurrency[chainId]} to{' '}
                             {cutDecimals(
                               1 / holdingData.holdUntilPriceInWETH,
                               2,
                             )}{' '}
-                            USD/{chainCurrency[chainId]}
+                            {symbolUSD[chainId]}/{chainCurrency[chainId]}
                           </div>
                         ) : null}
                         {holdingData.token !== zeroAddress &&
@@ -348,13 +349,13 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                         holdingData.holdUntilPriceInUSD ? (
                           <div>
                             {cutLongZeroNumber(holdingData.holdAtPriceInUSD)}{' '}
-                            USD/
+                            {symbolUSD[chainId]}/
                             {holdingTokenData?.symbol} to{' '}
                             {cutLongZeroNumber(
                               holdingData.holdUntilPriceInUSD,
                               true,
                             )}{' '}
-                            USD/{holdingTokenData.symbol}
+                            {symbolUSD[chainId]}/{holdingTokenData.symbol}
                           </div>
                         ) : null}
                       </div>
