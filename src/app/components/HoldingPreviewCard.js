@@ -198,7 +198,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                               1 / holdingData.holdUntilPriceInWETH,
                               2,
                             )}{' '}
-                            USDT/{chainCurrency[chainId]}
+                            USD/{chainCurrency[chainId]}
                           </div>
                         ) : null}
                         {holdingData.token !== zeroAddress &&
@@ -218,7 +218,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                               holdingData.holdUntilPriceInUSD,
                               true,
                             )}{' '}
-                            USDT/{holdingTokenData.symbol}
+                            USD/{holdingTokenData.symbol}
                           </div>
                         ) : null}
                       </div>
@@ -273,10 +273,10 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                   {holdingData.isPureEther &&
                   holdingData.holdUntilPriceInWETH ? (
                     <div>
-                      {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)} USDT/
+                      {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)} USD/
                       {chainCurrency[chainId]} to{' '}
                       {cutDecimals(1 / holdingData.holdUntilPriceInWETH, 2)}{' '}
-                      USDT/{chainCurrency[chainId]}
+                      USD/{chainCurrency[chainId]}
                     </div>
                   ) : null}
                   {holdingData.token !== zeroAddress &&
@@ -294,10 +294,10 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                   {holdingData.token !== zeroAddress &&
                   holdingData.holdUntilPriceInUSD ? (
                     <div>
-                      {cutLongZeroNumber(holdingData.holdAtPriceInUSD)} USDT/
+                      {cutLongZeroNumber(holdingData.holdAtPriceInUSD)} USD/
                       {holdingTokenData?.symbol} to{' '}
                       {cutLongZeroNumber(holdingData.holdUntilPriceInUSD, true)}{' '}
-                      USDT/{holdingTokenData.symbol}
+                      USD/{holdingTokenData.symbol}
                     </div>
                   ) : null}
                 </div>
@@ -323,12 +323,12 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                         holdingData.holdUntilPriceInWETH ? (
                           <div>
                             {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)}{' '}
-                            USDT/{chainCurrency[chainId]} to{' '}
+                            USD/{chainCurrency[chainId]} to{' '}
                             {cutDecimals(
                               1 / holdingData.holdUntilPriceInWETH,
                               2,
                             )}{' '}
-                            USDT/{chainCurrency[chainId]}
+                            USD/{chainCurrency[chainId]}
                           </div>
                         ) : null}
                         {holdingData.token !== zeroAddress &&
@@ -348,13 +348,13 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                         holdingData.holdUntilPriceInUSD ? (
                           <div>
                             {cutLongZeroNumber(holdingData.holdAtPriceInUSD)}{' '}
-                            USDT/
+                            USD/
                             {holdingTokenData?.symbol} to{' '}
                             {cutLongZeroNumber(
                               holdingData.holdUntilPriceInUSD,
                               true,
                             )}{' '}
-                            USDT/{holdingTokenData.symbol}
+                            USD/{holdingTokenData.symbol}
                           </div>
                         ) : null}
                       </div>

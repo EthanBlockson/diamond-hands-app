@@ -30,13 +30,13 @@ export default function ConfirmDepositModal({
   tokenBalance,
   etherBalance,
   amount,
-  amountUSDT,
+  amountUSD,
   priceETHinUSD,
   priceTOKENinETH,
   freezeForDays,
   unfreezeDate,
   freezeForX,
-  isInUSDT,
+  isInUSD,
   refcode,
   isValidRefCode,
 }) {
@@ -97,7 +97,7 @@ export default function ConfirmDepositModal({
       tokenDecimals,
       freezeForDays * 86400,
       freezeForX,
-      isInUSDT,
+      isInUSD,
       refcode,
     );
     if (deposit) {
@@ -140,14 +140,14 @@ export default function ConfirmDepositModal({
               <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
             ) : (
               <div>
-                {isInUSDT
+                {isInUSD
                   ? cutLongZeroNumber(
                       priceTOKENinETH * priceETHinUSD * freezeForX,
                     )
                   : cutLongZeroNumber(priceTOKENinETH * freezeForX)}
               </div>
             )}
-            {isEther ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}/
+            {isEther ? 'USD' : isInUSD ? 'USD' : 'ETH'}/
             {isEther ? 'ETH' : tokenSymbol}
           </div>
           <div className="token-x-under">{freezeForX}x</div>
@@ -184,7 +184,7 @@ export default function ConfirmDepositModal({
                       {cutDecimals(amount, 2)} {tokenSymbol}
                     </div>
                     <div className="token-price-under">
-                      ${cutLongZeroNumber(amountUSDT)}
+                      ${cutLongZeroNumber(amountUSD)}
                     </div>
                   </div>
                   <div className="chain">

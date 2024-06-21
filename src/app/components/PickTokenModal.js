@@ -25,13 +25,13 @@ export default function PickTokenModal({
   setTokenDecimals,
   setTokenBalance,
   setAmount,
-  setAmountUSDT,
+  setAmountUSD,
   callCheckSpendingApproval,
   callGetPriceTOKENinETH,
   setIsErrorGettingPriceTOKEN,
   setFreezeForDays,
   setFreezeForX,
-  setIsInUSDT,
+  setIsInUSD,
 }) {
   const modalRef = useRef(null);
   const { open } = useWeb3Modal();
@@ -69,7 +69,7 @@ export default function PickTokenModal({
     const etherBalance = await getEtherBalance(walletProvider, address);
     setTokenBalance(etherBalance);
     setIsErrorGettingPriceTOKEN(false);
-    setIsInUSDT(true);
+    setIsInUSD(true);
     handleClosePickTokenModal();
   };
 
@@ -87,7 +87,7 @@ export default function PickTokenModal({
     setTokenBalance(balanceNumber);
     callGetPriceTOKENinETH(tokenAddress, decimals);
     callCheckSpendingApproval(tokenAddress, decimals, address);
-    setIsInUSDT(false);
+    setIsInUSD(false);
   };
 
   const pickTokenFromSearch = async () => {
@@ -97,7 +97,7 @@ export default function PickTokenModal({
     setTokenDecimals(searchResults.decimals);
     setTokenBalance(searchResults.balanceNumber);
     callGetPriceTOKENinETH(contractAddress, searchResults.decimals);
-    setIsInUSDT(false);
+    setIsInUSD(false);
     handleClosePickTokenModal();
   };
 
@@ -114,7 +114,7 @@ export default function PickTokenModal({
 
   const handleClosePickTokenModal = () => {
     setAmount('');
-    setAmountUSDT(0);
+    setAmountUSD(0);
     setFreezeForDays(0);
     setFreezeForX(1);
     handleShowPickTokenModal(false);

@@ -15,7 +15,7 @@ import capitalizeFirstLetter from '@/utils/capitalizeFirstLetter';
 import { getHoldingIds } from '@/calls/getHoldingIds';
 import { chainIdToName } from '@/utils/chainIdToName';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
-import { USDT } from '@/data/USDT';
+import { USD } from '@/data/USD';
 import HoldingPreviewCard from '@/app/components/HoldingPreviewCard';
 import { getHoldingInfo } from '@/calls/getHoldingInfo';
 import { chainIdToNameLowerCase } from '@/utils/chainIdToNameLowerCase';
@@ -95,12 +95,12 @@ export default function HoldingsByAddress({ params }) {
     const dollarToEtherPrice = await getTokenPriceV2(
       chainId,
       walletProvider,
-      USDT[chainId],
-      6, // USDT decimals
-      1, // 1 USDT
+      USD[chainId],
+      6, // USD decimals
+      1, // 1 USD
       true,
     );
-    // 1 / 0.000258740411587277 WETH = 3864.87 USDT/WETH
+    // 1 / 0.000258740411587277 WETH = 3864.87 USD/WETH
     setPriceETHinUSD(1 / dollarToEtherPrice);
     return 1 / dollarToEtherPrice;
   };

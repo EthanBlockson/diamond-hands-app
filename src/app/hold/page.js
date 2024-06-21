@@ -13,7 +13,7 @@ import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { checkSpendingApproval } from '@/calls/checkSpendingApproval';
 import { setSpendingApproval } from '@/calls/setSpendingApproval';
 import { getRefAddressByRefCode } from '@/calls/getRefAddressByRefCode';
-import { USDT } from '@/data/USDT';
+import { USD } from '@/data/USD';
 import cutDecimals from '@/utils/cutDecimals';
 import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
 import PickTokenModal from '../components/PickTokenModal';
@@ -40,7 +40,7 @@ export default function Hold() {
   const [tokenBalance, setTokenBalance] = useState(undefined);
   const [amount, setAmount] = useState('');
   const [amountApproved, setAmountApproved] = useState(0);
-  const [amountUSDT, setAmountUSDT] = useState(0);
+  const [amountUSD, setAmountUSD] = useState(0);
   const [priceETHinUSD, setPriceETHinUSD] = useState(0);
   const [priceTOKENinETH, setPriceTOKENinETH] = useState(undefined);
   const [isErrorGettingPriceTOKEN, setIsErrorGettingPriceTOKEN] =
@@ -49,7 +49,7 @@ export default function Hold() {
   const [limitDays, setLimitDays] = useState(1825);
   const [unfreezeDate, setUnfreezeDate] = useState(new Date());
   const [freezeForX, setFreezeForX] = useState(1);
-  const [isInUSDT, setIsInUSDT] = useState(true);
+  const [isInUSD, setIsInUSD] = useState(true);
   const [limitX, setLimitX] = useState(100);
   const [refcode, setRefcode] = useState('');
   const [isValidRefCode, setIsValidRefCode] = useState(false);
@@ -85,12 +85,12 @@ export default function Hold() {
     const dollarToEtherPrice = await getTokenPriceV2(
       chainId,
       walletProvider,
-      USDT[chainId],
-      6, // USDT decimals
-      1, // 1 USDT
+      USD[chainId],
+      6, // USD decimals
+      1, // 1 USD
       true,
     );
-    // 1 / 0.000258740411587277 WETH = 3864.87 USDT/WETH
+    // 1 / 0.000258740411587277 WETH = 3864.87 USD/WETH
     setPriceETHinUSD(1 / dollarToEtherPrice);
   };
 
@@ -142,18 +142,17 @@ export default function Hold() {
     const inputAmount = parseFloat(e.target.value);
     if (inputAmount >= 0) {
       setAmount(inputAmount);
-      handleAmountUSDT(inputAmount);
+      handleAmountUSD(inputAmount);
       calcFee(inputAmount);
     } else {
       setAmount('');
-      setAmountUSDT(0);
+      setAmountUSD(0);
     }
   };
 
-  const handleAmountUSDT = (inputAmount) => {
-    tokenName === 'ETH' && setAmountUSDT(inputAmount * priceETHinUSD);
-    tokenAddress &&
-      setAmountUSDT(inputAmount * priceTOKENinETH * priceETHinUSD);
+  const handleAmountUSD = (inputAmount) => {
+    tokenName === 'ETH' && setAmountUSD(inputAmount * priceETHinUSD);
+    tokenAddress && setAmountUSD(inputAmount * priceTOKENinETH * priceETHinUSD);
   };
 
   const calcFee = (inputAmount) => {
@@ -212,13 +211,13 @@ export default function Hold() {
       setTokenDecimals={setTokenDecimals}
       setTokenBalance={setTokenBalance}
       setAmount={setAmount}
-      setAmountUSDT={setAmountUSDT}
+      setAmountUSD={setAmountUSD}
       callCheckSpendingApproval={callCheckSpendingApproval}
       callGetPriceTOKENinETH={callGetPriceTOKENinETH}
       setIsErrorGettingPriceTOKEN={setIsErrorGettingPriceTOKEN}
       setFreezeForDays={setFreezeForDays}
       setFreezeForX={setFreezeForX}
-      setIsInUSDT={setIsInUSDT}
+      setIsInUSD={setIsInUSD}
     />,
     <ConfirmDepositModal
       key="default"
@@ -232,13 +231,13 @@ export default function Hold() {
       tokenBalance={tokenBalance}
       etherBalance={etherBalance}
       amount={amount}
-      amountUSDT={amountUSDT}
+      amountUSD={amountUSD}
       priceETHinUSD={priceETHinUSD}
       priceTOKENinETH={priceTOKENinETH}
       freezeForDays={freezeForDays}
       unfreezeDate={unfreezeDate}
       freezeForX={freezeForX}
-      isInUSDT={isInUSDT}
+      isInUSD={isInUSD}
       refcode={refcode}
       isValidRefCode={isValidRefCode}
     />,
@@ -338,8 +337,8 @@ export default function Hold() {
               </div>
             </div>
             <div className="usd-price flex space-between">
-              {amountUSDT > 0 ? (
-                <div>${cutLongZeroNumber(amountUSDT)}</div>
+              {amountUSD > 0 ? (
+                <div>${cutLongZeroNumber(amountUSD)}</div>
               ) : (
                 <div></div>
               )}
@@ -349,7 +348,7 @@ export default function Hold() {
                   className="token-balance"
                   onClick={() => {
                     setAmount(tokenBalance);
-                    handleAmountUSDT(tokenBalance);
+                    handleAmountUSD(tokenBalance);
                   }}
                 >
                   {cutDecimals(tokenBalance, 4)}
@@ -421,15 +420,15 @@ export default function Hold() {
                   <div className="flex row gapped-mini center-baseline">
                     <div>
                       Hold until {freezeForX ? freezeForX : '?'}X in{' '}
-                      {isInUSDT ? 'USDT' : 'ETH'}
+                      {isInUSD ? 'USD' : 'ETH'}
                     </div>
                     {tokenName !== 'ETH' &&
                       priceTOKENinETH * priceETHinUSD > 0.000001 && (
                         <button
                           className="mini"
-                          onClick={() => setIsInUSDT(!isInUSDT)}
+                          onClick={() => setIsInUSD(!isInUSD)}
                         >
-                          in {isInUSDT ? 'ETH' : 'USDT'}?
+                          in {isInUSD ? 'ETH' : 'USD'}?
                         </button>
                       )}
                   </div>
@@ -451,7 +450,7 @@ export default function Hold() {
                         <>
                           {priceTOKENinETH ? (
                             <div>
-                              {isInUSDT
+                              {isInUSD
                                 ? cutLongZeroNumber(
                                     priceTOKENinETH *
                                       priceETHinUSD *
@@ -467,8 +466,8 @@ export default function Hold() {
                         </>
                       )}
                       &nbsp;
-                      {tokenName === 'ETH' ? 'USDT' : isInUSDT ? 'USDT' : 'ETH'}
-                      /{tokenName === 'ETH' ? 'ETH' : tokenSymbol}
+                      {tokenName === 'ETH' ? 'USD' : isInUSD ? 'USD' : 'ETH'}/
+                      {tokenName === 'ETH' ? 'ETH' : tokenSymbol}
                     </div>
                     <div>
                       {freezeForX === limitX && (

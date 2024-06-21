@@ -18,7 +18,7 @@ import { percentDifference } from '@/utils/percentDifference';
 import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
 import cutDecimals from '@/utils/cutDecimals';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
-import { USDT } from '@/data/USDT';
+import { USD } from '@/data/USD';
 import { chainCurrency } from '@/utils/chainCurrency';
 import { getServiceFee } from '@/calls/getServiceFee';
 import { getEtherBalance } from '@/calls/getEtherBalance';
@@ -217,12 +217,12 @@ export default function HoldingsById({ params }) {
     const dollarToEtherPrice = await getTokenPriceV2(
       chainId,
       walletProvider,
-      USDT[chainId],
-      6, // USDT decimals
-      1, // 1 USDT
+      USD[chainId],
+      6, // USD decimals
+      1, // 1 USD
       true,
     );
-    // 1 / 0.000258740411587277 WETH = 3864.87 USDT/WETH
+    // 1 / 0.000258740411587277 WETH = 3864.87 USD/WETH
     setPriceETHinUSD(1 / dollarToEtherPrice);
     return 1 / dollarToEtherPrice;
   };
@@ -305,13 +305,13 @@ export default function HoldingsById({ params }) {
 
   const TickerPair = () => {
     return holdingInfo.isPureEther
-      ? `USDT/${chainCurrency[chainId]}`
+      ? `USD/${chainCurrency[chainId]}`
       : holdingInfo.holdUntilPriceInWETH
       ? `${chainCurrency[chainId]}/${
           holdingTokenData?.symbol ? holdingTokenData.symbol : '...'
         }`
       : holdingInfo.holdUntilPriceInUSD
-      ? `USDT/${holdingTokenData?.symbol ? holdingTokenData.symbol : '...'}`
+      ? `USD/${holdingTokenData?.symbol ? holdingTokenData.symbol : '...'}`
       : null;
   };
 
