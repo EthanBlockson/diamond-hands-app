@@ -238,7 +238,7 @@ export default function ConfirmDepositModal({
                     <div className="flex space-between">
                       <div className="little-text">Service fee</div>
                       <div className="little-text">
-                        {cutDecimals(serviceFee, 2)} ETH
+                        {cutDecimals(serviceFee, 2)} {chainCurrency[chainId]}
                       </div>
                     </div>
                   )}
@@ -246,7 +246,7 @@ export default function ConfirmDepositModal({
                 {etherBalance < serviceFee ||
                 (isEther && etherBalance < amount + serviceFee) ? (
                   <button className="large" disabled>
-                    Insufficient ETH balance
+                    Insufficient {chainCurrency[chainId]} balance
                   </button>
                 ) : (
                   <button
