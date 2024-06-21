@@ -24,7 +24,16 @@ export default function Footer() {
   return (
     <footer>
       {/* DESKTOP */}
-      <SocialMediaLinks size={25} isDesktop={true} />
+      <div className="flex space-between">
+        <div className="credits flex column end gapped">
+          <div
+            className="status"
+            style={{ backgroundColor: address ? '#40e0d0' : '#7d7d7d' }}
+          ></div>
+          <div>v1.0</div>
+        </div>
+        <SocialMediaLinks size={25} isDesktop={true} />
+      </div>
       {/* MOBILE */}
       <div className="menu-mobile-block">
         <div className="menu-mobile flex space-between">

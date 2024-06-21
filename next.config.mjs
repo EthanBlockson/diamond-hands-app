@@ -5,16 +5,16 @@ const nextConfig = {
     return config;
   },
 
-  async redirects() {
-    return [
-      // Temporary redirect
-      {
-        source: '/',
-        destination: '/hold',
-        permanent: false,
-      },
-    ];
-  },
+  // async redirects() {
+  //   return [
+  //     // Temporary redirect
+  //     {
+  //       source: '/',
+  //       destination: '/hold',
+  //       permanent: false,
+  //     },
+  //   ];
+  // },
 };
 
 export default nextConfig;

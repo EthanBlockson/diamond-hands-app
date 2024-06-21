@@ -111,7 +111,7 @@ export default function Earn() {
   return (
     <>
       {isWaitingTxModalVisible && <>{modals[1]}</>}
-      {isLoaded && myCode !== undefined ? (
+      {isLoaded && (myCode !== undefined || !address) ? (
         <div className="earn flex column center">
           <h1>Earn with referrals</h1>
           <div className="details flex column center">

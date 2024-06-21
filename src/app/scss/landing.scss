@@ -1,0 +1,154 @@
+.landing {
+  margin-top: -40px;
+
+  .hero {
+    gap: 40px;
+    height: 500px;
+    padding: 30px;
+    border-bottom: 3px solid $diamond;
+    background-image: url('../../../public/img/brand/chart.png');
+    background-position: right bottom;
+    background-repeat: no-repeat;
+    background-size: 50%;
+
+    h1 {
+      font-size: 70px;
+    }
+
+    .info {
+      font-size: 20px;
+      opacity: 40%;
+    }
+
+    .socials {
+      > div {
+        gap: 25px;
+      }
+    }
+  }
+
+  .how-it-works {
+    padding: 90px 30px;
+    background-image: linear-gradient(to bottom, $diamond-lightest, white);
+
+    h2 {
+      font-size: 45px;
+    }
+
+    .info {
+      text-align: center;
+      font-size: 18px;
+      color: $diamond;
+    }
+
+    .steps {
+      gap: 25px;
+      margin-top: 25px;
+      padding: 30px 30px 0 30px;
+      border-radius: 20px;
+
+      .step {
+        gap: 20px;
+        font-size: 18px;
+      }
+    }
+  }
+
+  .why-diamond-hands {
+    gap: 50px;
+    padding: 90px 30px;
+    background: $black;
+    color: white;
+
+    .block-why {
+      width: 270px;
+      padding: 20px;
+      border: 1px solid #424242;
+      border-radius: 14px;
+
+      &:hover {
+        border-color: $dark-gray;
+      }
+    }
+  }
+
+  .lets-go {
+    gap: 20px;
+    padding: 90px 200px;
+    background: $diamond;
+    font-family: Basel;
+    font-size: 45px;
+    color: white;
+
+    .author {
+      margin-bottom: 10px;
+      font-size: 20px;
+      > img {
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .landing {
+    margin-top: 0;
+
+    .hero {
+      height: auto;
+      padding: 10% 3% 10% 3%;
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 65px;
+        line-height: 0.95;
+      }
+
+      .hero-buttons {
+        flex-wrap: wrap;
+      }
+    }
+
+    .how-it-works {
+      padding: 17% 3%;
+
+      h2 {
+        font-size: 40px;
+      }
+
+      .steps {
+        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 15px;
+        padding-top: 24px;
+
+        .step {
+          gap: 15px;
+        }
+
+        .arrow {
+          transform: rotate(90deg);
+        }
+      }
+    }
+
+    .why-diamond-hands {
+      flex-direction: column;
+      padding: 17% 3% 17% 3%;
+      gap: 25px;
+
+      h2 {
+        margin-bottom: 15px;
+      }
+
+      .block-why {
+        width: 90%;
+      }
+    }
+
+    .lets-go {
+      padding: 17% 6% 30% 6%;
+    }
+  }
+}

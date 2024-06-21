@@ -15,10 +15,18 @@ body {
 }
 
 a {
+  all: unset;
   text-decoration: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
-h1 {
+h1,
+h2,
+h3,
+h4 {
   font-family: Basel, sans-serif;
 }
 
@@ -114,6 +122,22 @@ button {
     border-radius: 18px;
     background-color: $diamond;
     opacity: 85%;
+
+    &.nocolor {
+      background: 0;
+      color: $black;
+      box-shadow: inset 0px 0px 0px 2px $black;
+    }
+
+    &.white {
+      background: white;
+      color: $black;
+      opacity: 100%;
+
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
 
     &:hover {
       opacity: 100%;
