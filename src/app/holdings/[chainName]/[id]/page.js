@@ -22,7 +22,6 @@ import { USD } from '@/data/USD';
 import { symbolUSD } from '@/utils/symbolUSD';
 import { decimalsUSD } from '@/utils/decimalsUSD';
 import { chainCurrency } from '@/utils/chainCurrency';
-import { chainCurrency } from '@/utils/chainCurrency';
 import { getServiceFee } from '@/calls/getServiceFee';
 import { getEtherBalance } from '@/calls/getEtherBalance';
 import { withdrawHoldingToken } from '@/calls/withdrawHoldingToken';
