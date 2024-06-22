@@ -596,6 +596,12 @@ export default function HoldingsById({ params }) {
                       </div>
                     )}
 
+                  {!isAbleToClaim && holdingInfo.user === address && (
+                    <div className="buttons flex">
+                      <button disabled>On hold</button>
+                    </div>
+                  )}
+
                   {holdingInfo.isActive &&
                     holdingInfo.user === address &&
                     withdrawalFee !== undefined &&

@@ -25,6 +25,7 @@ import { chainCurrency } from '@/utils/chainCurrency';
 import ConfirmDepositModal from '../components/ConfirmDepositModal';
 import { LoadingComponent } from '../components/LoadingComponent';
 import { decimalsUSD } from '@/utils/decimalsUSD';
+import WaitingTxModal from '@/app/components/WaitingTxModal';
 
 export default function Hold() {
   const screenWidth = useScreenWidth();
@@ -58,8 +59,10 @@ export default function Hold() {
   const [fee, setFee] = useState(undefined);
 
   const zeroAddress = '0x0000000000000000000000000000000000000000';
+  const hintText = 'Confirm approval amount';
 
   const [isPickTokenModalVisible, setIsPickTokenModalVisible] = useState(false);
+  const [isWaitingTxModalVisible, setIsWaitingTxModalVisible] = useState(false);
   const [isConfirmDepositModalVisible, setIsConfirmDepositModalVisible] =
     useState(false);
 
@@ -122,12 +125,14 @@ export default function Hold() {
   };
 
   const callSetSpendingApproval = async () => {
+    handleShowWaitingTxModal(true);
     const isApproved = await setSpendingApproval(
       chainId,
       walletProvider,
       tokenAddress,
     );
     callCheckSpendingApproval(tokenAddress, tokenDecimals, address);
+    handleShowWaitingTxModal(false);
   };
 
   const callGetRefAddressByRefCode = async (refcode) => {
@@ -197,6 +202,10 @@ export default function Hold() {
     setIsPickTokenModalVisible(boolean);
   };
 
+  const handleShowWaitingTxModal = (boolean) => {
+    setIsWaitingTxModalVisible(boolean);
+  };
+
   const handleShowConfirmDepositModal = (boolean) => {
     setIsConfirmDepositModalVisible(boolean);
   };
@@ -220,6 +229,12 @@ export default function Hold() {
       setFreezeForDays={setFreezeForDays}
       setFreezeForX={setFreezeForX}
       setIsInUSD={setIsInUSD}
+    />,
+    <WaitingTxModal
+      key="default"
+      isWaitingTxModalVisible={isWaitingTxModalVisible}
+      handleShowWaitingTxModal={handleShowWaitingTxModal}
+      hintText={hintText}
     />,
     <ConfirmDepositModal
       key="default"
@@ -248,7 +263,8 @@ export default function Hold() {
   return (
     <>
       {isPickTokenModalVisible && <>{modals[1]}</>}
-      {isConfirmDepositModalVisible && <>{modals[2]}</>}
+      {isWaitingTxModalVisible && <>{modals[2]}</>}
+      {isConfirmDepositModalVisible && <>{modals[3]}</>}
       {isLoaded ? (
         <div className="hold flex column center">
           <div className="holding-types flex row gapped">
