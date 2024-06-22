@@ -1,9 +1,9 @@
 export const WETH = {
-  1: '0x', // ethereum
+  1: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // ethereum
   42161: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1', // arbitrum
-  10: '0x', // optimism
-  137: '0x', // polygon
-  8453: '0x', // base
-  81457: '0x', // blast
-  56: '0x', // bsc
+  10: 'undefined', // optimism
+  137: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270', // polygon
+  8453: '0x4200000000000000000000000000000000000006', // base
+  81457: '0x4300000000000000000000000000000000000004', // blast
+  56: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', // bsc
 };

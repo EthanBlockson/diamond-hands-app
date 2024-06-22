@@ -267,6 +267,7 @@ export default function HoldingsById({ params }) {
   };
 
   const callWithdrawHoldingEther = async () => {
+    handleShowWaitingTxModal(true);
     const tx = await withdrawHoldingEther(
       chainId,
       walletProvider,
@@ -281,6 +282,7 @@ export default function HoldingsById({ params }) {
         `Error trying to withdrawn ${chainCurrency[chainId]} from holding`,
       );
     }
+    handleShowWaitingTxModal(false);
   };
 
   const callWithdrawHoldingToken = async () => {

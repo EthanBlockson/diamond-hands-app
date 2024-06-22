@@ -158,12 +158,15 @@ export default function Hold() {
   };
 
   const handleAmountUSD = (inputAmount) => {
-    tokenName === 'ETH' && setAmountUSD(inputAmount * priceETHinUSD);
+    tokenName === chainCurrency[chainId] &&
+      setAmountUSD(inputAmount * priceETHinUSD);
+    console.log(tokenName); // TEMP
     tokenAddress && setAmountUSD(inputAmount * priceTOKENinETH * priceETHinUSD);
   };
 
   const calcFee = (inputAmount) => {
-    tokenName === 'ETH' && setFee((inputAmount * fees.deposit) / 100);
+    tokenName === chainCurrency[chainId] &&
+      setFee((inputAmount * fees.deposit) / 100);
     tokenAddress &&
       setFee((inputAmount * priceTOKENinETH * fees.deposit) / 100);
   };
@@ -466,7 +469,7 @@ export default function Hold() {
                   />
                   <div className="flex row space-between">
                     <div className="flex row">
-                      {tokenName === 'ETH' ? (
+                      {tokenName === chainCurrency[chainId] ? (
                         <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
                       ) : (
                         <>

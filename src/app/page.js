@@ -84,7 +84,7 @@ export default function Home() {
         </div>
         <div className="block-why flex column gapped">
           <b>Multichain support</b>
-          <p>{chainNames.join(', ')}.</p>
+          <p>{chainNames.join(', ')} networks.</p>
         </div>
         <div className="block-why flex column gapped">
           <b>Revenue sharing</b>

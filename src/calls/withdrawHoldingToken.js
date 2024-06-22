@@ -15,7 +15,7 @@ export const withdrawHoldingToken = async (
 
   const contractAddress = contracts[chainId];
 
-  const payableAmountInWei = ethers.utils.parseUnits(fee.toFixed(18), decimals);
+  const payableAmountInWei = ethers.utils.parseUnits(fee.toFixed(18), 18);
 
   const ABI = ['function withdrawHoldingToken(uint32 _id) public payable'];
 

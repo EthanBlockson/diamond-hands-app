@@ -38,13 +38,13 @@ const arbitrum = {
   rpcUrl: 'https://rpc.ankr.com/arbitrum',
 };
 
-const optimism = {
-  chainId: 10,
-  name: 'Optimism',
-  currency: 'ETH',
-  explorerUrl: 'https://optimistic.etherscan.io/',
-  rpcUrl: 'https://rpc.ankr.com/optimism',
-};
+// const optimism = {
+//   chainId: 10,
+//   name: 'Optimism',
+//   currency: 'ETH',
+//   explorerUrl: 'https://optimistic.etherscan.io/',
+//   rpcUrl: 'https://rpc.ankr.com/optimism',
+// };
 
 const polygon = {
   chainId: 137,
@@ -86,7 +86,7 @@ const ethersConfig = defaultConfig({
 // 5. Create a Web3Modal instance
 createWeb3Modal({
   ethersConfig,
-  chains: [mainnet, base, blast, arbitrum, optimism, polygon, bsc],
+  chains: [mainnet, base, blast, arbitrum, polygon, bsc],
   projectId,
   enableAnalytics: true, // Optional - defaults to your Cloud configuration
   enableOnramp: true, // Optional - false as default
