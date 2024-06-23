@@ -9,7 +9,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { YandexMetrika } from '@/context/YandexMetrika';
 
 export const metadata = {
-  title: 'Diamond Hands ◆ Hold crypto tokens in stone',
+  title: 'Diamond Hands ◆ Freeze your crypto coins',
   description:
     'Hold your coins as you planned. Never break your targets. Freeze them to exact date or X price growth in ETH or USD.',
   // https://nextjs.org/docs/app/building-your-application/optimizing/metadata
