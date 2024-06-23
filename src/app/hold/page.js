@@ -467,39 +467,43 @@ export default function Hold() {
                     onChange={handleX}
                   />
                   <div className="flex row space-between">
-                    <div className="flex row">
-                      {tokenName === chainCurrency[chainId] ? (
-                        <div>{cutDecimals(priceETHinUSD * freezeForX, 2)}</div>
-                      ) : (
-                        <>
-                          {priceTOKENinETH ? (
-                            <div>
-                              {isInUSD
-                                ? cutLongZeroNumber(
-                                    priceTOKENinETH *
-                                      priceETHinUSD *
-                                      freezeForX,
-                                  )
-                                : cutLongZeroNumber(
-                                    priceTOKENinETH * freezeForX,
-                                  )}
-                            </div>
-                          ) : (
-                            <div>...</div>
-                          )}
-                        </>
-                      )}
-                      &nbsp;
-                      {tokenName === 'ETH'
-                        ? symbolUSD[chainId]
-                        : isInUSD
-                        ? symbolUSD[chainId]
-                        : chainCurrency[chainId]}
-                      /
-                      {tokenName === 'ETH'
-                        ? chainCurrency[chainId]
-                        : tokenSymbol}
-                    </div>
+                    {address && (
+                      <div className="flex row">
+                        {tokenName === chainCurrency[chainId] ? (
+                          <div>
+                            {cutDecimals(priceETHinUSD * freezeForX, 2)}
+                          </div>
+                        ) : (
+                          <>
+                            {priceTOKENinETH ? (
+                              <div>
+                                {isInUSD
+                                  ? cutLongZeroNumber(
+                                      priceTOKENinETH *
+                                        priceETHinUSD *
+                                        freezeForX,
+                                    )
+                                  : cutLongZeroNumber(
+                                      priceTOKENinETH * freezeForX,
+                                    )}
+                              </div>
+                            ) : (
+                              <div>...</div>
+                            )}
+                          </>
+                        )}
+                        &nbsp;
+                        {tokenName === 'ETH'
+                          ? symbolUSD[chainId]
+                          : isInUSD
+                          ? symbolUSD[chainId]
+                          : chainCurrency[chainId]}
+                        /
+                        {tokenName === 'ETH'
+                          ? chainCurrency[chainId]
+                          : tokenSymbol}
+                      </div>
+                    )}
                     <div>
                       {freezeForX === limitX && (
                         <button
