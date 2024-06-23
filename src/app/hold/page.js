@@ -327,7 +327,7 @@ export default function Hold() {
                   <input
                     className="amount"
                     type="number"
-                    inputMode="decimal"
+                    // inputMode="decimal"
                     min="0"
                     autoComplete="off"
                     placeholder="0"
@@ -411,7 +411,7 @@ export default function Hold() {
                   <input
                     className="white-input"
                     type="number"
-                    inputMode="numeric"
+                    // inputMode="numeric"
                     autoComplete="off"
                     placeholder="12"
                     value={freezeForDays}
@@ -517,7 +517,7 @@ export default function Hold() {
                   <input
                     className="white-input flex end"
                     type="number"
-                    inputMode="decimal"
+                    // inputMode="decimal"
                     autoComplete="off"
                     placeholder="100"
                     value={freezeForX}
