@@ -16,7 +16,7 @@ export default function SocialMediaLinks({ size, isDesktop }) {
         <Image src={`/img/icons/x.svg`} width={size} height={size} alt="" />
       </Link>
       <Link
-        href="https://discord.com/users/diamond_hands_app"
+        href="https://discord.gg/89DgsTx2"
         target="_blank"
         rel="nofollow noopener noreferrer"
       >
@@ -28,7 +28,7 @@ export default function SocialMediaLinks({ size, isDesktop }) {
         />
       </Link>
       <Link
-        href="https://t.me/diamond_hands_app"
+        href="https://t.me/diamond_hands_chat"
         target="_blank"
         rel="nofollow noopener noreferrer"
       >
@@ -42,7 +42,7 @@ export default function SocialMediaLinks({ size, isDesktop }) {
       {isDesktop && (
         <>
           <Link
-            href="https://www.youtube.com/@diamond_hands_app"
+            href="https://youtube.com/@diamond_hands_app"
             target="_blank"
             rel="nofollow noopener noreferrer"
           >
@@ -54,7 +54,7 @@ export default function SocialMediaLinks({ size, isDesktop }) {
             />
           </Link>
           <Link
-            href="https:/github.com/#"
+            href="https://github.com/Diamond-Hands-App"
             target="_blank"
             rel="nofollow noopener noreferrer"
           >

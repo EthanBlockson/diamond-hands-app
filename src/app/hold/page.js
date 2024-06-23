@@ -444,6 +444,7 @@ export default function Hold() {
                     </div>
                     {tokenName !== chainCurrency[chainId] &&
                       priceTOKENinETH * priceETHinUSD > 0.000001 && (
+                        // If token is too cheap theres no sense to show this button, cos USDT price returns 0
                         <button
                           className="mini"
                           onClick={() => setIsInUSD(!isInUSD)}

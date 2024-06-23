@@ -20,7 +20,11 @@ export default function Home() {
           <Link href="#how-it-works">
             <button className="large nocolor">How it works</button>
           </Link>
-          <Link href="#" target="_blank" rel="nofollow noopener noreferrer">
+          <Link
+            href="https://youtube.com/@diamond_hands_app"
+            target="_blank"
+            rel="nofollow noopener noreferrer"
+          >
             <button className="large nocolor flex center-baseline gapped">
               <Image
                 src={`/img/icons/youtube.svg`}
