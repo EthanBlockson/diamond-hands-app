@@ -160,7 +160,6 @@ export default function Hold() {
   const handleAmountUSD = (inputAmount) => {
     tokenName === chainCurrency[chainId] &&
       setAmountUSD(inputAmount * priceETHinUSD);
-    console.log(tokenName); // TEMP
     tokenAddress && setAmountUSD(inputAmount * priceTOKENinETH * priceETHinUSD);
   };
 
@@ -443,7 +442,7 @@ export default function Hold() {
                       Hold until {freezeForX ? freezeForX : '?'}X in{' '}
                       {isInUSD ? symbolUSD[chainId] : chainCurrency[chainId]}
                     </div>
-                    {tokenName !== 'ETH' &&
+                    {tokenName !== chainCurrency[chainId] &&
                       priceTOKENinETH * priceETHinUSD > 0.000001 && (
                         <button
                           className="mini"
@@ -593,14 +592,16 @@ export default function Hold() {
                         (depositType === 'Date' && freezeForDays >= 1) ||
                         (depositType === 'Price' && freezeForX >= 1.01)) && (
                         <>
-                          {tokenName !== 'ETH' && amount > amountApproved && (
-                            <button onClick={() => callSetSpendingApproval()}>
-                              Approve
-                            </button>
-                          )}
+                          {tokenName !== chainCurrency[chainId] &&
+                            amount > amountApproved && (
+                              <button onClick={() => callSetSpendingApproval()}>
+                                Approve
+                              </button>
+                            )}
                           <button
                             disabled={
-                              tokenName !== 'ETH' && amount > amountApproved
+                              tokenName !== chainCurrency[chainId] &&
+                              amount > amountApproved
                             }
                             onClick={() => {
                               setIsConfirmDepositModalVisible(

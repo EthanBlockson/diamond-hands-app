@@ -2,9 +2,15 @@ import { ethers, Contract } from 'ethers';
 import { contracts } from '../../contracts';
 import { bigNumberTokensToNumber } from '@/utils/bigNumberTokensToNumber';
 import { decimalsUSD } from '@/utils/decimalsUSD';
+import { getERC20 } from './getERC20';
 
-export const getHoldingInfo = async (chainId, walletProvider, _id) => {
-  if (!chainId || !walletProvider || !_id) {
+export const getHoldingInfo = async (
+  chainId,
+  walletProvider,
+  _id,
+  userAddress,
+) => {
+  if (!chainId || !walletProvider || !_id || !userAddress) {
     console.error('Not enough data provided calling getHoldingInfo()');
     return;
   }
@@ -22,10 +28,23 @@ export const getHoldingInfo = async (chainId, walletProvider, _id) => {
 
     const holdingInfo = await contract.getHoldingInfo(_id);
 
+    let tokenData = {
+      name: null,
+      symbol: null,
+      decimals: 18,
+      balanceNumber: null,
+    };
+    if (!holdingInfo[1]) {
+      tokenData = await getERC20(walletProvider, holdingInfo[9], userAddress);
+    }
+
     const holdingInfoFormatted = {
       isActive: holdingInfo[0],
       isPureEther: holdingInfo[1],
-      amount: bigNumberTokensToNumber(holdingInfo[2], 18),
+      amount: bigNumberTokensToNumber(
+        holdingInfo[2],
+        holdingInfo[1] ? 18 : tokenData.decimals,
+      ),
       holdAtTimestamp: holdingInfo[3].toNumber(),
       holdUntilTimestamp: holdingInfo[4].toNumber(),
       holdAtPriceInWETH: bigNumberTokensToNumber(holdingInfo[5], 18),
@@ -39,6 +58,10 @@ export const getHoldingInfo = async (chainId, walletProvider, _id) => {
         decimalsUSD[chainId],
       ),
       token: holdingInfo[9],
+      name: tokenData.name,
+      symbol: tokenData.symbol,
+      decimals: tokenData.decimals,
+      balance: tokenData.balanceNumber,
       user: holdingInfo[10],
     };
 

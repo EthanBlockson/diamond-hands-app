@@ -10,7 +10,6 @@ import {
 } from '@web3modal/ethers5/react';
 import { nameToChainId } from '@/utils/nameToChainId';
 import { getHoldingInfo } from '@/calls/getHoldingInfo';
-import { getERC20 } from '@/calls/getERC20';
 import capitalizeFirstLetter from '@/utils/capitalizeFirstLetter';
 import { shortenAddress } from '@/utils/shortenAddress';
 import { formatDate } from '@/utils/formatDate';
@@ -40,7 +39,6 @@ export default function HoldingsById({ params }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isNetworkMatch, setIsNetworkMatch] = useState(true);
   const [holdingInfo, setHoldingInfo] = useState(undefined);
-  const [holdingTokenData, setHoldingTokenData] = useState(undefined);
   const [holdingType, setHoldingType] = useState(undefined);
   // 0) only until date any coin, 1) ether until price, 2) token until weth price, 3) token until usd price
   const [dateProgress, setDateProgress] = useState(undefined);
@@ -75,6 +73,7 @@ export default function HoldingsById({ params }) {
       chainId,
       walletProvider,
       id,
+      address,
     );
 
     if (!fetchedHoldingInfo || fetchedHoldingInfo.amount === 0) {
@@ -131,8 +130,9 @@ export default function HoldingsById({ params }) {
     }
 
     if (fetchedHoldingInfo.token !== zeroAddress) {
-      const { fetchedTokenData, tokenEtherPrice } = await fetchTokenData(
+      const { tokenEtherPrice } = await fetchTokenPrice(
         fetchedHoldingInfo.token,
+        fetchedHoldingInfo.decimals,
       );
 
       if (fetchedHoldingInfo.holdAtPriceInWETH) {
@@ -148,7 +148,7 @@ export default function HoldingsById({ params }) {
           await handleTokenAbleToClaim(
             fetchedHoldingInfo.token,
             fetchedHoldingInfo.amount,
-            fetchedTokenData.decimals,
+            fetchedHoldingInfo.decimals,
             4,
           );
         }
@@ -170,7 +170,7 @@ export default function HoldingsById({ params }) {
           await handleTokenAbleToClaim(
             fetchedHoldingInfo.token,
             fetchedHoldingInfo.amount,
-            fetchedTokenData.decimals,
+            fetchedHoldingInfo.decimals,
             4,
           );
         }
@@ -189,7 +189,7 @@ export default function HoldingsById({ params }) {
           await handleTokenAbleToClaim(
             fetchedHoldingInfo.token,
             fetchedHoldingInfo.amount,
-            fetchedTokenData.decimals,
+            fetchedHoldingInfo.decimals,
             4,
           );
         }
@@ -197,22 +197,12 @@ export default function HoldingsById({ params }) {
     }
   };
 
-  const fetchTokenData = async (contractAddress) => {
-    const fetchedTokenData = await getERC20(
-      walletProvider,
+  const fetchTokenPrice = async (contractAddress, decimals) => {
+    const tokenEtherPrice = await callGetPriceTOKENinETH(
       contractAddress,
-      address,
+      decimals,
     );
-    if (fetchedTokenData) {
-      setHoldingTokenData(fetchedTokenData);
-      const tokenEtherPrice = await callGetPriceTOKENinETH(
-        contractAddress,
-        fetchedTokenData.decimals,
-      );
-      return { fetchedTokenData, tokenEtherPrice };
-    } else {
-      setHoldingTokenData(null);
-    }
+    return { tokenEtherPrice };
   };
 
   const callGetPriceETHinUSD = async () => {
@@ -292,7 +282,7 @@ export default function HoldingsById({ params }) {
       walletProvider,
       id,
       withdrawalFee,
-      holdingTokenData.decimals,
+      holdingInfo.decimals,
     );
     if (tx) {
       multiCallGetHoldingInfo();
@@ -312,11 +302,11 @@ export default function HoldingsById({ params }) {
       ? `${symbolUSD[chainId]}/${chainCurrency[chainId]}`
       : holdingInfo.holdUntilPriceInWETH
       ? `${chainCurrency[chainId]}/${
-          holdingTokenData?.symbol ? holdingTokenData.symbol : '...'
+          holdingInfo?.symbol ? holdingInfo.symbol : '...'
         }`
       : holdingInfo.holdUntilPriceInUSD
       ? `${symbolUSD[chainId]}/${
-          holdingTokenData?.symbol ? holdingTokenData.symbol : '...'
+          holdingInfo?.symbol ? holdingInfo.symbol : '...'
         }`
       : null;
   };
@@ -519,8 +509,8 @@ export default function HoldingsById({ params }) {
                         <div className="token-name colored-hover">
                           {holdingInfo.isPureEther
                             ? chainCurrency[chainId]
-                            : holdingTokenData
-                            ? `${holdingTokenData.symbol} (${holdingTokenData.name})`
+                            : holdingInfo
+                            ? `${holdingInfo.symbol} (${holdingInfo.name})`
                             : '...'}
                         </div>
                       </Link>

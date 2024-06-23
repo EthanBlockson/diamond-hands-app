@@ -70,7 +70,12 @@ export default function HoldingsByAddress({ params }) {
     setCurrentCursor(cursor + step);
 
     const holdingInfoPromises = ids.map(async (id) => {
-      const holdingInfo = await getHoldingInfo(chainId, walletProvider, id);
+      const holdingInfo = await getHoldingInfo(
+        chainId,
+        walletProvider,
+        id,
+        address,
+      );
       return { id, ...holdingInfo };
     });
     const holdingInfoArray = await Promise.all(holdingInfoPromises);

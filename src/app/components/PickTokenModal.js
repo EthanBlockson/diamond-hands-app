@@ -97,6 +97,7 @@ export default function PickTokenModal({
     setTokenDecimals(searchResults.decimals);
     setTokenBalance(searchResults.balanceNumber);
     callGetPriceTOKENinETH(contractAddress, searchResults.decimals);
+    callCheckSpendingApproval(contractAddress, searchResults.decimals, address);
     setIsInUSD(false);
     handleClosePickTokenModal();
   };

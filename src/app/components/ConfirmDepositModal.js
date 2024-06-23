@@ -84,7 +84,7 @@ export default function ConfirmDepositModal({
         `/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`,
       );
     } else {
-      toast.error('Error trying to make new holding');
+      toast.error('New holding creation denied');
     }
     setIsWaitingForTx(false);
   };
@@ -109,7 +109,7 @@ export default function ConfirmDepositModal({
         `/holdings/${chainIdToNameLowerCase[chainId]}/address/${address}`,
       );
     } else {
-      toast.error('Error trying to make new holding');
+      toast.error('New holding creation denied');
     }
     setIsWaitingForTx(false);
   };

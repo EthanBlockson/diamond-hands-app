@@ -10,7 +10,6 @@ import cutDecimals from '@/utils/cutDecimals';
 import cutLongZeroNumber from '@/utils/cutLongZeroNumber';
 import { formatDate } from '@/utils/formatDate';
 import { percentDifference } from '@/utils/percentDifference';
-import { getERC20 } from '@/calls/getERC20';
 import { getTokenPriceV2 } from '@/calls/getTokenPriceV2';
 import { chainCurrency } from '@/utils/chainCurrency';
 import { symbolUSD } from '@/utils/symbolUSD';
@@ -21,7 +20,6 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
   const { address, chainId } = useWeb3ModalAccount();
 
   const [priceTOKENinETH, setPriceTOKENinETH] = useState(undefined);
-  const [holdingTokenData, setHoldingTokenData] = useState(undefined);
   const [dateProgress, setDateProgress] = useState(undefined);
   const [priceProgress, setPriceProgress] = useState(undefined);
   const [isAbleToClaim, setIsAbleToClaim] = useState(false);
@@ -33,11 +31,12 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
     if (holdingData.holdUntilTimestamp) getDatePercentDifference();
     if (holdingData.holdUntilPriceInWETH || holdingData.holdUntilPriceInUSD)
       getPricePercentDifference();
+    console.log(holdingData); // TEMP
   }, []);
 
   const getDatePercentDifference = async () => {
     if (holdingData.token !== zeroAddress) {
-      await fetchTokenData(holdingData.token);
+      await fetchTokenPrice(holdingData.token, holdingData.decimals);
     }
 
     setDateProgress(
@@ -68,7 +67,10 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
     }
 
     if (holdingData.token !== zeroAddress) {
-      const { tokenEtherPrice } = await fetchTokenData(holdingData.token);
+      const { tokenEtherPrice } = await fetchTokenPrice(
+        holdingData.token,
+        holdingData.decimals,
+      );
 
       if (holdingData.holdAtPriceInWETH) {
         setPriceProgress(
@@ -98,20 +100,12 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
     }
   };
 
-  const fetchTokenData = async (contractAddress) => {
-    const fetchedTokenData = await getERC20(
-      walletProvider,
+  const fetchTokenPrice = async (contractAddress, decimals) => {
+    const tokenEtherPrice = await callGetPriceTOKENinETH(
       contractAddress,
-      address,
+      decimals,
     );
-    if (fetchedTokenData) {
-      setHoldingTokenData(fetchedTokenData);
-      const tokenEtherPrice = await callGetPriceTOKENinETH(
-        contractAddress,
-        fetchedTokenData.decimals,
-      );
-      return { tokenEtherPrice };
-    }
+    return { tokenEtherPrice };
   };
 
   const callGetPriceTOKENinETH = async (token, decimals) => {
@@ -129,7 +123,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
 
   return (
     <>
-      {holdingTokenData || holdingData.isPureEther ? (
+      {holdingData ? (
         <div>
           <div className="card-header flex space-between">
             <div className="id"># {id}</div>
@@ -149,9 +143,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
             <div className="token-name">
               {holdingData.isPureEther
                 ? chainCurrency[chainId]
-                : holdingTokenData
-                ? `${holdingTokenData.symbol} (${holdingTokenData.name})`
-                : '...'}
+                : `${holdingData.symbol} (${holdingData.name})`}
             </div>
           </div>
           {holdingData.isActive ? (
@@ -209,7 +201,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                               holdingData.holdUntilPriceInWETH,
                               true,
                             )}{' '}
-                            {chainCurrency[chainId]}/{holdingTokenData.symbol}
+                            {chainCurrency[chainId]}/{holdingData.symbol}
                           </div>
                         ) : null}
                         {holdingData.token !== zeroAddress &&
@@ -219,7 +211,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                               holdingData.holdUntilPriceInUSD,
                               true,
                             )}{' '}
-                            {symbolUSD[chainId]}/{holdingTokenData.symbol}
+                            {symbolUSD[chainId]}/{holdingData.symbol}
                           </div>
                         ) : null}
                       </div>
@@ -259,110 +251,6 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
                 />
                 <div>Diamond handed</div>
               </div>
-              {/* {(holdingData.holdUntilTimestamp &&
-                holdingData.holdUntilPriceInWETH) ||
-              (holdingData.holdUntilTimestamp &&
-                holdingData.holdUntilPriceInUSD) ? (
-                <div className="finalized flex column center gapped">
-                  💎
-                  <div>
-                    Successfuly held from{' '}
-                    {formatDate(holdingData.holdAtTimestamp, true)}, to{' '}
-                    {formatDate(holdingData.holdUntilTimestamp, true)}
-                  </div>
-                  <b>OR</b>
-                  {holdingData.isPureEther &&
-                  holdingData.holdUntilPriceInWETH ? (
-                    <div>
-                      {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)} {symbolUSD[chainId]}/
-                      {chainCurrency[chainId]} to{' '}
-                      {cutDecimals(1 / holdingData.holdUntilPriceInWETH, 2)}{' '}
-                      {symbolUSD[chainId]}/{chainCurrency[chainId]}
-                    </div>
-                  ) : null}
-                  {holdingData.token !== zeroAddress &&
-                  holdingData.holdUntilPriceInWETH ? (
-                    <div>
-                      {cutLongZeroNumber(holdingData.holdAtPriceInWETH)}{' '}
-                      {chainCurrency[chainId]}/{holdingTokenData?.symbol} to{' '}
-                      {cutLongZeroNumber(
-                        holdingData.holdUntilPriceInWETH,
-                        true,
-                      )}{' '}
-                      {chainCurrency[chainId]}/{holdingTokenData.symbol}
-                    </div>
-                  ) : null}
-                  {holdingData.token !== zeroAddress &&
-                  holdingData.holdUntilPriceInUSD ? (
-                    <div>
-                      {cutLongZeroNumber(holdingData.holdAtPriceInUSD)} {symbolUSD[chainId]}/
-                      {holdingTokenData?.symbol} to{' '}
-                      {cutLongZeroNumber(holdingData.holdUntilPriceInUSD, true)}{' '}
-                      {symbolUSD[chainId]}/{holdingTokenData.symbol}
-                    </div>
-                  ) : null}
-                </div>
-              ) : (
-                <>
-                  {holdingData.holdUntilTimestamp ? (
-                    <div className="finalized flex column center gapped">
-                      💎
-                      <div>
-                        Successfuly held from{' '}
-                        {formatDate(holdingData.holdAtTimestamp, true)}, to{' '}
-                        {formatDate(holdingData.holdUntilTimestamp, true)}
-                      </div>
-                    </div>
-                  ) : null}
-                  {holdingData.holdUntilPriceInWETH ||
-                  holdingData.holdUntilPriceInUSD ? (
-                    <div className="finalized flex column center gapped">
-                      💎
-                      <div>
-                        Successfuly held from{' '}
-                        {holdingData.isPureEther &&
-                        holdingData.holdUntilPriceInWETH ? (
-                          <div>
-                            {cutDecimals(1 / holdingData.holdAtPriceInWETH, 2)}{' '}
-                            {symbolUSD[chainId]}/{chainCurrency[chainId]} to{' '}
-                            {cutDecimals(
-                              1 / holdingData.holdUntilPriceInWETH,
-                              2,
-                            )}{' '}
-                            {symbolUSD[chainId]}/{chainCurrency[chainId]}
-                          </div>
-                        ) : null}
-                        {holdingData.token !== zeroAddress &&
-                        holdingData.holdUntilPriceInWETH ? (
-                          <div>
-                            {cutLongZeroNumber(holdingData.holdAtPriceInWETH)}{' '}
-                            {chainCurrency[chainId]}/{holdingTokenData?.symbol}{' '}
-                            to{' '}
-                            {cutLongZeroNumber(
-                              holdingData.holdUntilPriceInWETH,
-                              true,
-                            )}{' '}
-                            {chainCurrency[chainId]}/{holdingTokenData.symbol}
-                          </div>
-                        ) : null}
-                        {holdingData.token !== zeroAddress &&
-                        holdingData.holdUntilPriceInUSD ? (
-                          <div>
-                            {cutLongZeroNumber(holdingData.holdAtPriceInUSD)}{' '}
-                            {symbolUSD[chainId]}/
-                            {holdingTokenData?.symbol} to{' '}
-                            {cutLongZeroNumber(
-                              holdingData.holdUntilPriceInUSD,
-                              true,
-                            )}{' '}
-                            {symbolUSD[chainId]}/{holdingTokenData.symbol}
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : null}
-                </>
-              )} */}
             </>
           )}
         </div>
