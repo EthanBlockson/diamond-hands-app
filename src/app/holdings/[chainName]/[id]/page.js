@@ -359,9 +359,9 @@ export default function HoldingsById({ params }) {
                 {holdingInfo.isPureEther
                   ? cutDecimals(1 / holdingInfo.holdUntilPriceInWETH, 2)
                   : holdingInfo.holdUntilPriceInWETH
-                  ? cutLongZeroNumber(holdingInfo.holdUntilPriceInWETH, true)
+                  ? cutLongZeroNumber(holdingInfo.holdUntilPriceInWETH)
                   : holdingInfo.holdUntilPriceInUSD
-                  ? cutLongZeroNumber(holdingInfo.holdUntilPriceInUSD, true)
+                  ? cutLongZeroNumber(holdingInfo.holdUntilPriceInUSD)
                   : null}{' '}
                 <TickerPair />
               </div>
@@ -390,9 +390,9 @@ export default function HoldingsById({ params }) {
                     {holdingInfo.isPureEther
                       ? cutDecimals(1 / holdingInfo.holdAtPriceInWETH, 2)
                       : holdingInfo.holdUntilPriceInWETH
-                      ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH, true)
+                      ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH)
                       : holdingInfo.holdUntilPriceInUSD
-                      ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD, true)
+                      ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD)
                       : null}{' '}
                     <TickerPair />
                   </div>
@@ -430,17 +430,17 @@ export default function HoldingsById({ params }) {
           {holdingInfo.isPureEther
             ? cutDecimals(1 / holdingInfo.holdAtPriceInWETH, 2)
             : holdingInfo.holdUntilPriceInWETH
-            ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH, true)
+            ? cutLongZeroNumber(holdingInfo.holdAtPriceInWETH)
             : holdingInfo.holdUntilPriceInUSD
-            ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD, true)
+            ? cutLongZeroNumber(holdingInfo.holdAtPriceInUSD)
             : null}{' '}
           <TickerPair /> to{' '}
           {holdingInfo.isPureEther
             ? cutDecimals(1 / holdingInfo.holdUntilPriceInWETH, 2)
             : holdingInfo.holdUntilPriceInWETH
-            ? cutLongZeroNumber(holdingInfo.holdUntilPriceInWETH, true)
+            ? cutLongZeroNumber(holdingInfo.holdUntilPriceInWETH)
             : holdingInfo.holdUntilPriceInUSD
-            ? cutLongZeroNumber(holdingInfo.holdUntilPriceInUSD, true)
+            ? cutLongZeroNumber(holdingInfo.holdUntilPriceInUSD)
             : null}{' '}
           <TickerPair />
         </div>
@@ -495,7 +495,7 @@ export default function HoldingsById({ params }) {
                     </div>
                     <div className="flex column center">
                       <div className="token-amount">
-                        {cutLongZeroNumber(holdingInfo.amount)}
+                        {cutDecimals(holdingInfo.amount, 4)}
                       </div>
                       <Link
                         href={

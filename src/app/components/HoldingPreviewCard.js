@@ -138,7 +138,7 @@ export default function HoldingPreviewCard({ id, holdingData, priceETHinUSD }) {
           </div>
           <div className="token-header">
             <div className="token-amount">
-              {cutLongZeroNumber(holdingData.amount)}
+              {cutDecimals(holdingData.amount, 4)}
             </div>
             <div className="token-name">
               {holdingData.isPureEther

@@ -36,6 +36,7 @@ export default function cutLongZeroNumber(number) {
 // console.log(cutLongZeroNumber(0.000000000011232523523));
 // console.log(cutLongZeroNumber(0.00001123));
 // console.log(cutLongZeroNumber(0.197184327472347));
+// console.log(cutLongZeroNumber(0.1));
 // console.log(cutLongZeroNumber(42112.197184327472347));
 // console.log(cutLongZeroNumber(42112.00000072347));
 // console.log(cutLongZeroNumber(42112.325000000020000003500072347));
