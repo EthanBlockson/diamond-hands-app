@@ -29,6 +29,11 @@
     }
   }
 
+  .warning {
+    color: $black;
+    background: $diamond-light;
+  }
+
   .earned-ether {
     font-size: 50px;
     font-weight: bold;

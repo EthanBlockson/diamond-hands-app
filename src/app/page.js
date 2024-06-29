@@ -37,7 +37,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="socials flex start">
-          <SocialMediaLinks size={30} isDesktop={true} />
+          <SocialMediaLinks size={30} isLanding={true} />
         </div>
       </div>
       <div id="how-it-works" className="how-it-works flex column center gapped">

@@ -141,7 +141,8 @@ export default function Hold() {
       walletProvider,
       refcode,
     );
-    const isExist = referrerAddress !== zeroAddress;
+    const isExist =
+      referrerAddress !== zeroAddress && referrerAddress !== address;
     isExist && setIsValidRefCode(true);
   };
 
@@ -544,7 +545,7 @@ export default function Hold() {
                 <div className="fee flex space-between">
                   <div>Fee</div>
                   <div className="flex row gapped">
-                    {refcode && (
+                    {isValidRefCode && (
                       <div>
                         <s>
                           {fee * 0.8 >= 0.0001

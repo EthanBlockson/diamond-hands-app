@@ -184,6 +184,10 @@ export default function Earn() {
                       <button className="mini">Copy</button>
                     </div>
                   </div>
+                  <div className="form warning flex column center">
+                    Keep in mind! To profit on every chain, you must switch
+                    chains and register the same code on each one.
+                  </div>
                   <div className="form flex column center">
                     <div>Total referrals ({chainIdToName[chainId]} chain)</div>
                     <div className="earned-ether flex center text">
