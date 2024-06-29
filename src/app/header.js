@@ -31,9 +31,9 @@ export default function Header() {
 
   return (
     <>
-      <div className="alert flex center">
+      {/* <div className="alert flex center">
         Currently in beta testing. Careful. All progress might be lost!
-      </div>
+      </div> */}
       <div className="header flex space-between center-baseline">
         <div className="left flex row center-baseline gapped">
           <Link className="logo" href="/">
