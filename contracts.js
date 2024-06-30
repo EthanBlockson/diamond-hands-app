@@ -1,5 +1,5 @@
 export const contracts = {
-  1: '0x1AeF104153D648654158aa839610b9D29cBCbB7b', // ethereum
+  1: '0xc6080AA875c89D55B8f4e61871a5fE1ee6febE9d', // ethereum
   42161: '0xE78CdaCD7329121517A1f40908e12A18c76E7928', // arbitrum
   10: 'undefined', // optimism
   137: '0xBFB179f64b97378263E578f7b773258cd6E012C7', // polygon
