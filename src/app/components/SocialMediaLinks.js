@@ -20,7 +20,7 @@ export default function SocialMediaLinks({ size, isDesktop, isLanding }) {
         <Image src={`/img/icons/x.svg`} width={size} height={size} alt="" />
       </Link>
       <Link
-        href="https://discord.gg/89DgsTx2"
+        href="https://discord.gg/xg8TTy8m"
         target="_blank"
         rel="nofollow noopener noreferrer"
       >
